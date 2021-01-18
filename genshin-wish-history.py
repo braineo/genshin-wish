@@ -143,8 +143,15 @@ class GenshinWishParser(object):
         return {
             "gaChaToGo": expectation - noLuckCount,
             "rank": rank,
+            "noLuckCount": noLuckCount,
             "expectation": expectation,
         }
+
+    @staticmethod
+    def print_prediction(result):
+        print(
+            "{rank}星物品已垫{noLuckCount}, 估计还要{gaChaToGo}({expectation})".format(**result)
+        )
 
     @staticmethod
     def get_item_statistics(wishList):
@@ -157,18 +164,7 @@ class GenshinWishParser(object):
         return itemTable
 
     def print_statistics(self):
-        for gachaType, gachaName in GenshinWishParser.GachaTypes.items():
-            print(gachaName)
-            wishList = self._wishList[gachaType]
-            GenshinWishParser.print_rank_statistics(
-                GenshinWishParser.get_rank_statistics(wishList)
-            )
-        print("总计")
-        GenshinWishParser.print_rank_statistics(
-            GenshinWishParser.get_rank_statistics(
-                list(itertools.chain(*self._wishList.values()))
-            )
-        )
+
         print("物品统计")
 
         itemStatistics = GenshinWishParser.get_item_statistics(
@@ -181,8 +177,30 @@ class GenshinWishParser(object):
             if item["name"] in itemStatistics:
                 print("%s: %d" % (item["name"], itemStatistics[item["name"]]))
 
+        for gachaType, gachaName in GenshinWishParser.GachaTypes.items():
+            print(gachaName)
+            wishList = self._wishList[gachaType]
+            GenshinWishParser.print_rank_statistics(
+                GenshinWishParser.get_rank_statistics(wishList)
+            )
+            GenshinWishParser.print_prediction(
+                GenshinWishParser.get_prediction(wishList, 4, 10)
+            )
+            GenshinWishParser.print_prediction(
+                GenshinWishParser.get_prediction(wishList, 5, 77)
+            )
+
+        print("总计")
+        GenshinWishParser.print_rank_statistics(
+            GenshinWishParser.get_rank_statistics(
+                list(itertools.chain(*self._wishList.values()))
+            )
+        )
+
 
 if __name__ == "__main__":
-    parse = GenshinWishParser("authkey")
+    parse = GenshinWishParser(
+        "test"
+    )
     parse.get_wish_list()
     parse.print_statistics()
