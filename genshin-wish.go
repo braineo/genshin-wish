@@ -79,6 +79,7 @@ type GachaStatistics struct {
 	Weapon                int
 	WeaponStar5           int
 	WeaponStar4           int
+	Star5Intervals        []int
 	ShortestStar5Interval int
 	LongestStar5Interval  int
 	CurrentStar5Interval  int
@@ -95,6 +96,18 @@ const (
 var (
 	requiredQueryFields = []string{"authkey_ver", "sign_type", "auth_appid", "gacha_id", "lang", "game_biz", "authkey", "region"}
 )
+
+func mean(intSlice []int) float32 {
+	if len(intSlice) == 0 {
+		return 0
+	}
+	sum := 0
+	for _, number := range intSlice {
+		sum += number
+	}
+
+	return float32(sum) / float32(len(intSlice))
+}
 
 func (p *GenshinWishParser) prepareRequestParams(request *http.Request) url.Values {
 	query := request.URL.Query()
@@ -232,7 +245,7 @@ func (p *GenshinWishParser) MakeStatistics() {
 			Weapon:                0,
 			WeaponStar5:           0,
 			WeaponStar4:           0,
-			ShortestStar5Interval: 0,
+			ShortestStar5Interval: 90,
 			LongestStar5Interval:  0,
 			CurrentStar5Interval:  0,
 			CurrentStar4Interval:  0,
@@ -259,9 +272,12 @@ func (p *GenshinWishParser) MakeStatistics() {
 				} else {
 					statistics.WeaponStar5++
 				}
+				if foundFirstStar5Item {
+					statistics.Star5Intervals = append(statistics.Star5Intervals, star5Interval)
+					statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
+					statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
+				}
 				foundFirstStar5Item = true
-				statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
-				statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
 				star5Interval = 0
 			} else if itemInfo.RankType == "4" {
 				statistics.Star4++
@@ -285,6 +301,12 @@ func (p *GenshinWishParser) MakeStatistics() {
 				statistics.CurrentStar4Interval++
 			}
 		}
+
+		if foundFirstStar5Item {
+			statistics.Star5Intervals = append(statistics.Star5Intervals, star5Interval)
+			statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
+			statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
+		}
 		p.StatisticsInPool[gachaKey] = statistics
 
 		p.Statistics.Total += statistics.Total
@@ -297,6 +319,9 @@ func (p *GenshinWishParser) MakeStatistics() {
 		p.Statistics.Weapon += statistics.Weapon
 		p.Statistics.WeaponStar5 += statistics.WeaponStar5
 		p.Statistics.WeaponStar4 += statistics.WeaponStar4
+		p.Statistics.LongestStar5Interval = int(math.Max(float64(p.Statistics.LongestStar5Interval), float64(statistics.LongestStar5Interval)))
+		p.Statistics.ShortestStar5Interval = int(math.Min(float64(p.Statistics.ShortestStar5Interval), float64(statistics.ShortestStar5Interval)))
+		p.Statistics.Star5Intervals = append(p.Statistics.Star5Intervals, statistics.Star5Intervals...)
 	}
 }
 
@@ -333,6 +358,9 @@ func (p *GenshinWishParser) PrintStatistics() {
 		)
 		fmt.Printf("四星物品已垫%d,估计还要%d(%d)\n", statistics.CurrentStar4Interval, 10-statistics.CurrentStar4Interval, 10)
 		fmt.Printf("五星物品已垫%d,估计还要%d(%d)\n", statistics.CurrentStar5Interval, 77-statistics.CurrentStar5Interval, 77)
+		if statistics.ShortestStar5Interval < 90 {
+			fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n", statistics.ShortestStar5Interval, statistics.LongestStar5Interval, mean(statistics.Star5Intervals))
+		}
 	}
 	fmt.Println("==========")
 	fmt.Println("综合统计")
@@ -361,6 +389,8 @@ func (p *GenshinWishParser) PrintStatistics() {
 		p.Statistics.CharacterStar4,
 		float32(p.Statistics.WeaponStar4)/float32(p.Statistics.Total)*100.0,
 	)
+	fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n", p.Statistics.ShortestStar5Interval, p.Statistics.LongestStar5Interval, mean(p.Statistics.Star5Intervals))
+
 	fmt.Println("==========")
 	fmt.Println("物品统计")
 
@@ -370,6 +400,12 @@ func (p *GenshinWishParser) PrintStatistics() {
 		itemSlice = append(itemSlice, item)
 	}
 	sort.Slice(itemSlice, func(i, j int) bool {
+		if itemSlice[i].ItemType < itemSlice[j].ItemType {
+			return true
+		}
+		if itemSlice[i].ItemType > itemSlice[j].ItemType {
+			return false
+		}
 		return itemSlice[i].RankType > itemSlice[j].RankType
 	})
 
@@ -433,7 +469,10 @@ func main() {
 		Configs:          make([]GachaConfig, 0),
 		GachalLogInPool:  make(map[string][]GachaLog),
 		StatisticsInPool: make(map[string]GachaStatistics),
-		Statistics:       GachaStatistics{ItemCount: make(map[string]int)},
+		Statistics: GachaStatistics{
+			ItemCount:             make(map[string]int),
+			ShortestStar5Interval: 90,
+		},
 	}
 
 	err = parser.FetchGachaConfigs()
