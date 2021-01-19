@@ -380,11 +380,15 @@ func (p *GenshinWishParser) PrintStatistics() {
 func main() {
 	formatter := logging.MustStringFormatter("%{color}%{time:2006-01-02T15:04:05.000000-07:00} %{module} [%{level}] <%{pid}> [%{shortfile} %{shortfunc}] %{message}%{color:reset}")
 	logging.SetBackend(logging.NewBackendFormatter(logging.NewLogBackend(os.Stderr, "", 0), formatter))
-	if level, err := logging.LogLevel("Debug"); err == nil {
+	if level, err := logging.LogLevel("Info"); err == nil {
 		logging.SetLevel(level, "")
 	}
 
-	u, err := url.Parse("url with authkey")
+	fmt.Print("输入带Authkey地址: ")
+	var inputURL string
+	fmt.Scanln(&inputURL)
+
+	u, err := url.Parse(inputURL)
 
 	if err != nil {
 		panic(err)
