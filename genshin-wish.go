@@ -383,12 +383,12 @@ func main() {
 	if level, err := logging.LogLevel("Info"); err == nil {
 		logging.SetLevel(level, "")
 	}
+	args := os.Args
+	if len(args) < 2 {
+		log.Error("需要authkey链接")
+	}
 
-	fmt.Print("输入带Authkey地址: ")
-	var inputURL string
-	fmt.Scanln(&inputURL)
-
-	u, err := url.Parse(inputURL)
+	u, err := url.Parse(args[1])
 
 	if err != nil {
 		panic(err)
