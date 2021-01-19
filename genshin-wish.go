@@ -287,16 +287,16 @@ func (p *GenshinWishParser) MakeStatistics() {
 		}
 		p.StatisticsInPool[gachaKey] = statistics
 
-		p.Statistics.Total = p.Statistics.Total + statistics.Total
-		p.Statistics.Star5 = p.Statistics.Star5 + statistics.Star5
-		p.Statistics.Star4 = p.Statistics.Star4 + statistics.Star4
-		p.Statistics.Star3 = p.Statistics.Star3 + statistics.Star3
-		p.Statistics.Character = p.Statistics.Character + statistics.Character
-		p.Statistics.CharacterStar5 = p.Statistics.CharacterStar5 + statistics.CharacterStar5
-		p.Statistics.CharacterStar4 = p.Statistics.Character + statistics.Character
-		p.Statistics.Weapon = p.Statistics.Weapon + statistics.Weapon
-		p.Statistics.WeaponStar5 = p.Statistics.WeaponStar5 + statistics.WeaponStar5
-		p.Statistics.WeaponStar4 = p.Statistics.WeaponStar4 + statistics.WeaponStar4
+		p.Statistics.Total += statistics.Total
+		p.Statistics.Star5 += statistics.Star5
+		p.Statistics.Star4 += statistics.Star4
+		p.Statistics.Star3 += statistics.Star3
+		p.Statistics.Character += statistics.Character
+		p.Statistics.CharacterStar5 += statistics.CharacterStar5
+		p.Statistics.CharacterStar4 += statistics.Character
+		p.Statistics.Weapon += statistics.Weapon
+		p.Statistics.WeaponStar5 += statistics.WeaponStar5
+		p.Statistics.WeaponStar4 += statistics.WeaponStar4
 	}
 }
 
@@ -328,7 +328,7 @@ func (p *GenshinWishParser) PrintStatistics() {
 			statistics.Weapon,
 			statistics.WeaponStar5,
 			float32(statistics.WeaponStar5)/float32(statistics.Weapon)*100.0,
-			statistics.CharacterStar4,
+			statistics.WeaponStar4,
 			float32(statistics.WeaponStar4)/float32(statistics.Weapon)*100.0,
 		)
 		fmt.Printf("四星物品已垫%d,估计还要%d(%d)\n", statistics.CurrentStar4Interval, 10-statistics.CurrentStar4Interval, 10)
