@@ -26,7 +26,7 @@ class GenshinWishParser(object):
 
     def __init__(self, authkey: str) -> None:
         self._authkey = authkey
-        self._itemEndpoint = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/zh-cn.json?ts=16109323"
+        self._itemEndpoint = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/zh-cn.json"
         self._historyEndpoint = (
             "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getGachaLog"
         )
