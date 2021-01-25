@@ -94,7 +94,7 @@ const (
 )
 
 var (
-	requiredQueryFields = []string{"authkey_ver", "sign_type", "auth_appid", "gacha_id", "lang", "game_biz", "authkey", "region"}
+	requiredQueryFields = []string{"authkey_ver", "sign_type", "auth_appid", "lang", "game_biz", "authkey", "region"}
 )
 
 func mean(intSlice []int) float32 {
@@ -461,6 +461,12 @@ func main() {
 	}
 
 	query, _ := url.ParseQuery(u.RawQuery)
+
+	for _, field := range requiredQueryFields {
+		if _, present := query[field]; !present {
+			log.Errorf("需要field %v,但不在提供的URL中", field)
+		}
+	}
 
 	parser := GenshinWishParser{
 		Client:           http.Client{},
