@@ -315,7 +315,7 @@ func (p *GenshinWishParser) MakeStatistics() {
 		p.Statistics.Star3 += statistics.Star3
 		p.Statistics.Character += statistics.Character
 		p.Statistics.CharacterStar5 += statistics.CharacterStar5
-		p.Statistics.CharacterStar4 += statistics.Character
+		p.Statistics.CharacterStar4 += statistics.CharacterStar4
 		p.Statistics.Weapon += statistics.Weapon
 		p.Statistics.WeaponStar5 += statistics.WeaponStar5
 		p.Statistics.WeaponStar4 += statistics.WeaponStar4
