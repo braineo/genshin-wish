@@ -386,7 +386,7 @@ func (p *GenshinWishParser) PrintStatistics() {
 		float32(p.Statistics.Weapon)/float32(p.Statistics.Total)*100.0,
 		p.Statistics.WeaponStar5,
 		float32(p.Statistics.WeaponStar5)/float32(p.Statistics.Total)*100.0,
-		p.Statistics.CharacterStar4,
+		p.Statistics.WeaponStar4,
 		float32(p.Statistics.WeaponStar4)/float32(p.Statistics.Total)*100.0,
 	)
 	fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n", p.Statistics.ShortestStar5Interval, p.Statistics.LongestStar5Interval, mean(p.Statistics.Star5Intervals))
