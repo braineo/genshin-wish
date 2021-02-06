@@ -47,6 +47,10 @@ type GachaLog struct {
 	Count     string `json:"conut"`
 	ItemID    string `json:"item_id"`
 	Time      string `json:"time"`
+	ItemType  string `json:"item_type"`
+	RankType  string `json:"rank_type"`
+	Name      string `json:"name"`
+	Lang      string `json:"lang"`
 }
 
 type GachaLogResponse struct {
@@ -253,19 +257,18 @@ func (p *GenshinWishParser) MakeStatistics() {
 		}
 
 		for _, gachaLog := range gachaLogs {
-			itemInfo := p.ItemTable[gachaLog.ItemID]
 			statistics.Total++
-			p.Statistics.ItemCount[itemInfo.Name]++
+			p.Statistics.ItemCount[gachaLog.Name]++
 
 			isCharacter := true
-			if itemInfo.ItemType == "角色" {
+			if gachaLog.ItemType == "角色" {
 				statistics.Character++
-			} else if itemInfo.ItemType == "武器" {
+			} else if gachaLog.ItemType == "武器" {
 				statistics.Weapon++
 				isCharacter = false
 			}
 
-			if itemInfo.RankType == "5" {
+			if gachaLog.RankType == "5" {
 				statistics.Star5++
 				if isCharacter {
 					statistics.CharacterStar5++
@@ -279,7 +282,7 @@ func (p *GenshinWishParser) MakeStatistics() {
 				}
 				foundFirstStar5Item = true
 				star5Interval = 0
-			} else if itemInfo.RankType == "4" {
+			} else if gachaLog.RankType == "4" {
 				statistics.Star4++
 				if isCharacter {
 					statistics.CharacterStar4++
@@ -288,7 +291,7 @@ func (p *GenshinWishParser) MakeStatistics() {
 				}
 				foundFirstStar4Item = true
 				star5Interval++
-			} else if itemInfo.RankType == "3" {
+			} else if gachaLog.RankType == "3" {
 				statistics.Star3++
 				star5Interval++
 			}
