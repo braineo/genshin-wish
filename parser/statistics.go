@@ -17,12 +17,17 @@ type GachaStatistics struct {
 	Weapon                int
 	WeaponStar5           int
 	WeaponStar4           int
-	Star5Intervals        []int
+	Star5Intervals        []Star5Interval
 	ShortestStar5Interval int
 	LongestStar5Interval  int
 	CurrentStar5Interval  int
 	CurrentStar4Interval  int
 	ItemCount             map[string]int
+}
+
+type Star5Interval struct {
+	Name     string
+	Interval int
 }
 
 func (p *GenshinWishParser) MakeStatistics() {
@@ -49,9 +54,10 @@ func (p *GenshinWishParser) MakeStatistics() {
 			CurrentStar5Interval:  0,
 			CurrentStar4Interval:  0,
 			ItemCount:             make(map[string]int),
+			Star5Intervals:        make([]Star5Interval, 0),
 		}
 
-		for _, gachaLog := range gachaLogs {
+		for index, gachaLog := range gachaLogs {
 			statistics.Total++
 			p.Statistics.ItemCount[gachaLog.Name]++
 
@@ -71,7 +77,10 @@ func (p *GenshinWishParser) MakeStatistics() {
 					statistics.WeaponStar5++
 				}
 				if foundFirstStar5Item {
-					statistics.Star5Intervals = append(statistics.Star5Intervals, star5Interval)
+					statistics.Star5Intervals = append(statistics.Star5Intervals, Star5Interval{
+						Name:     gachaLog.Name,
+						Interval: star5Interval,
+					})
 					statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
 					statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
 				}
@@ -98,13 +107,17 @@ func (p *GenshinWishParser) MakeStatistics() {
 			if !foundFirstStar4Item {
 				statistics.CurrentStar4Interval++
 			}
+			// Due with the first 5 star item interval in pool
+			if index == len(gachaLogs)-1 && foundFirstStar5Item {
+				statistics.Star5Intervals = append(statistics.Star5Intervals, Star5Interval{
+					Name:     gachaLog.Name,
+					Interval: star5Interval,
+				})
+				statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
+				statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
+			}
 		}
 
-		if foundFirstStar5Item {
-			statistics.Star5Intervals = append(statistics.Star5Intervals, star5Interval)
-			statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
-			statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
-		}
 		p.StatisticsInPool[gachaKey] = statistics
 
 		p.Statistics.Total += statistics.Total
@@ -125,12 +138,13 @@ func (p *GenshinWishParser) MakeStatistics() {
 
 func (p *GenshinWishParser) PrintStatistics() {
 	for _, gachaConfig := range p.Configs {
-		fmt.Println("==========")
-		fmt.Printf("%s抽卡统计\n", gachaConfig.Name)
+
 		statistics := p.StatisticsInPool[gachaConfig.Key]
 		if statistics.Total == 0 {
 			continue
 		}
+		fmt.Println("==========")
+		fmt.Printf("%s抽卡统计\n", gachaConfig.Name)
 		fmt.Printf("总数%v 五星%v(%.2f%%) 四星%v(%.2f%%) 三星%v(%.2f%%)\n",
 			statistics.Total,
 			statistics.Star5,
@@ -157,7 +171,15 @@ func (p *GenshinWishParser) PrintStatistics() {
 		fmt.Printf("四星物品已垫%d,估计还要%d(%d)\n", statistics.CurrentStar4Interval, 10-statistics.CurrentStar4Interval, 10)
 		fmt.Printf("五星物品已垫%d,估计还要%d(%d)\n", statistics.CurrentStar5Interval, 77-statistics.CurrentStar5Interval, 77)
 		if statistics.ShortestStar5Interval < 90 {
-			fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n", statistics.ShortestStar5Interval, statistics.LongestStar5Interval, mean(statistics.Star5Intervals))
+			fmt.Print("五星抽数历史\n")
+			intervals := make([]int, len(statistics.Star5Intervals))
+			for _, interval := range statistics.Star5Intervals {
+				fmt.Printf("%v(%d),", interval.Name, interval.Interval)
+				intervals = append(intervals, interval.Interval)
+			}
+			fmt.Printf("\n")
+			fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n",
+				statistics.ShortestStar5Interval, statistics.LongestStar5Interval, mean(intervals))
 		}
 	}
 	fmt.Println("==========")
@@ -187,7 +209,12 @@ func (p *GenshinWishParser) PrintStatistics() {
 		p.Statistics.WeaponStar4,
 		float32(p.Statistics.WeaponStar4)/float32(p.Statistics.Total)*100.0,
 	)
-	fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n", p.Statistics.ShortestStar5Interval, p.Statistics.LongestStar5Interval, mean(p.Statistics.Star5Intervals))
+
+	intervals := make([]int, len(p.Statistics.Star5Intervals))
+	for _, interval := range p.Statistics.Star5Intervals {
+		intervals = append(intervals, interval.Interval)
+	}
+	fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n", p.Statistics.ShortestStar5Interval, p.Statistics.LongestStar5Interval, mean(intervals))
 
 	fmt.Println("==========")
 	fmt.Println("物品统计")
