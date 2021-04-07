@@ -33,8 +33,6 @@ type Star5Interval struct {
 func (p *GenshinWishParser) MakeStatistics() {
 
 	for gachaKey, gachaLogs := range p.GachalLogInPool {
-		foundFirstStar5Item := false
-		foundFirstStar4Item := false
 
 		star5Interval := 0
 
@@ -52,12 +50,12 @@ func (p *GenshinWishParser) MakeStatistics() {
 			ShortestStar5Interval: 90,
 			LongestStar5Interval:  0,
 			CurrentStar5Interval:  0,
-			CurrentStar4Interval:  0,
 			ItemCount:             make(map[string]int),
 			Star5Intervals:        make([]Star5Interval, 0),
 		}
 
-		for index, gachaLog := range gachaLogs {
+		for index := len(gachaLogs) - 1; index >= 0; index-- {
+			gachaLog := gachaLogs[index]
 			statistics.Total++
 			p.Statistics.ItemCount[gachaLog.Name]++
 
@@ -76,15 +74,14 @@ func (p *GenshinWishParser) MakeStatistics() {
 				} else {
 					statistics.WeaponStar5++
 				}
-				if foundFirstStar5Item {
-					statistics.Star5Intervals = append(statistics.Star5Intervals, Star5Interval{
-						Name:     gachaLog.Name,
-						Interval: star5Interval,
-					})
-					statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
-					statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
-				}
-				foundFirstStar5Item = true
+
+				statistics.Star5Intervals = append(statistics.Star5Intervals, Star5Interval{
+					Name:     gachaLog.Name,
+					Interval: star5Interval,
+				})
+				statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
+				statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
+
 				star5Interval = 0
 			} else if gachaLog.RankType == "4" {
 				statistics.Star4++
@@ -93,28 +90,14 @@ func (p *GenshinWishParser) MakeStatistics() {
 				} else {
 					statistics.WeaponStar4++
 				}
-				foundFirstStar4Item = true
 				star5Interval++
 			} else if gachaLog.RankType == "3" {
 				statistics.Star3++
 				star5Interval++
 			}
 
-			if !foundFirstStar5Item {
-				statistics.CurrentStar5Interval++
-
-			}
-			if !foundFirstStar4Item {
-				statistics.CurrentStar4Interval++
-			}
-			// Due with the first 5 star item interval in pool
-			if index == len(gachaLogs)-1 && foundFirstStar5Item {
-				statistics.Star5Intervals = append(statistics.Star5Intervals, Star5Interval{
-					Name:     gachaLog.Name,
-					Interval: star5Interval,
-				})
-				statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
-				statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
+			if index == 0 {
+				statistics.CurrentStar5Interval = star5Interval
 			}
 		}
 
