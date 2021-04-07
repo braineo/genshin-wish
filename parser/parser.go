@@ -13,7 +13,8 @@ import (
 
 var (
 	log                 = logging.MustGetLogger("parser")
-	requiredQueryFields = []string{"authkey_ver", "sign_type", "auth_appid", "lang", "game_biz", "authkey", "region"}
+	requiredQueryFields = []string{"authkey_ver", "sign_type", "auth_appid",
+		"lang", "game_biz", "authkey", "region", "ext", "game_version"}
 )
 
 const (
@@ -33,7 +34,9 @@ type GenshinWishParser struct {
 	Statistics       GachaStatistics
 }
 
+// New creates parser from query string
 func New(rawQuery string) (*GenshinWishParser, error) {
+	log.Info(rawQuery)
 
 	u, err := url.Parse(rawQuery)
 
@@ -127,8 +130,9 @@ func (p *GenshinWishParser) FetchGachaLog() error {
 	for _, config := range p.Configs {
 		log.Infof("正在获取%s信息", config.Name)
 		gachaLog := make([]GachaLog, 0)
+		endId := "0"
 		for pageNumber := 1; ; pageNumber++ {
-			pagedGachaLog, err := p.fetchGachaLog(pageNumber, config.Key)
+			pagedGachaLog, err := p.fetchGachaLog(pageNumber, config.Key, endId)
 			if err != nil {
 				log.Debugf("无法读取%s页信息,错误%s", pageNumber, err)
 				return err
@@ -136,6 +140,7 @@ func (p *GenshinWishParser) FetchGachaLog() error {
 			if len(pagedGachaLog) == 0 {
 				break
 			}
+			endId = pagedGachaLog[len(pagedGachaLog)-1].ID
 			gachaLog = append(gachaLog, pagedGachaLog...)
 		}
 		p.GachalLogInPool[config.Key] = gachaLog
@@ -143,7 +148,7 @@ func (p *GenshinWishParser) FetchGachaLog() error {
 	return nil
 }
 
-func (p *GenshinWishParser) fetchGachaLog(pageNumber int, gachaType string) ([]GachaLog, error) {
+func (p *GenshinWishParser) fetchGachaLog(pageNumber int, gachaType string, endID string) ([]GachaLog, error) {
 	request, err := http.NewRequest("GET", gachaLogURL, nil)
 	if err != nil {
 		return nil, err
@@ -152,6 +157,7 @@ func (p *GenshinWishParser) fetchGachaLog(pageNumber int, gachaType string) ([]G
 	query.Set("page", strconv.Itoa(pageNumber))
 	query.Set("size", "20")
 	query.Set("gacha_type", gachaType)
+	query.Set("end_id", endID)
 	request.URL.RawQuery = query.Encode()
 
 	response, err := p.Client.Do(request)

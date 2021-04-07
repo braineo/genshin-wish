@@ -23,6 +23,7 @@ type GachaConfigResponse struct {
 
 type GachaLog struct {
 	GachaType string `gorm:"not null" json:"gacha_type"`
+	ID        string `json:"id"` // id for pagination
 	UID       string `gorm:"not null" json:"uid"`
 	Count     string `gorm:"not null" json:"conut"`
 	ItemID    string `gorm:"not null" json:"item_id"`
@@ -37,6 +38,8 @@ type GachaLogResponse struct {
 	RetCode int    `json:"retcode"`
 	Message string `json:"message"`
 	Data    struct {
+		Size         string     `json:"size"`
+		Region       string     `json:"region"`
 		GachaLogList []GachaLog `json:"list"`
 	} `json:"data"`
 }
