@@ -82,7 +82,7 @@ func (p *GenshinWishParser) MakeStatistics() {
 				statistics.LongestStar5Interval = int(math.Max(float64(star5Interval), float64(statistics.LongestStar5Interval)))
 				statistics.ShortestStar5Interval = int(math.Min(float64(star5Interval), float64(statistics.ShortestStar5Interval)))
 
-				star5Interval = 0
+				star5Interval = 1
 			} else if gachaLog.RankType == "4" {
 				statistics.Star4++
 				if isCharacter {
@@ -156,9 +156,9 @@ func (p *GenshinWishParser) PrintStatistics() {
 		if statistics.ShortestStar5Interval < 90 {
 			fmt.Print("五星抽数历史\n")
 			intervals := make([]int, len(statistics.Star5Intervals))
-			for _, interval := range statistics.Star5Intervals {
+			for i, interval := range statistics.Star5Intervals {
 				fmt.Printf("%v(%d),", interval.Name, interval.Interval)
-				intervals = append(intervals, interval.Interval)
+				intervals[i] = interval.Interval
 			}
 			fmt.Printf("\n")
 			fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n",
@@ -194,8 +194,8 @@ func (p *GenshinWishParser) PrintStatistics() {
 	)
 
 	intervals := make([]int, len(p.Statistics.Star5Intervals))
-	for _, interval := range p.Statistics.Star5Intervals {
-		intervals = append(intervals, interval.Interval)
+	for i, interval := range p.Statistics.Star5Intervals {
+		intervals[i] = interval.Interval
 	}
 	fmt.Printf("最短五星抽数%d,最长五星抽数%d,平均%.2f\n", p.Statistics.ShortestStar5Interval, p.Statistics.LongestStar5Interval, mean(intervals))
 
@@ -232,6 +232,5 @@ func mean(intSlice []int) float32 {
 	for _, number := range intSlice {
 		sum += number
 	}
-
 	return float32(sum) / float32(len(intSlice))
 }
