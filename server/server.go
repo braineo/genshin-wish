@@ -33,8 +33,8 @@ func New() Server {
 	v1Route := engine.Group("api/v1")
 
 	{
-		v1Route.POST("/log", server.PostLogHandler)
-		v1Route.GET("/log", GetLog)
+		v1Route.POST("/log", server.FetchLog)
+		v1Route.GET("/log", server.GetLog)
 	}
 	return server
 }
@@ -44,8 +44,8 @@ func (server *Server) Run() {
 	server.Engine.Run(":8080")
 }
 
-// PostLogHandler accept query URL for gacha log to query game server
-func (server *Server) PostLogHandler(ctx *gin.Context) {
+// FetchLog accept query URL for gacha log to query game server
+func (server *Server) FetchLog(ctx *gin.Context) {
 	rawQuery := ctx.PostForm("query")
 	playerName := ctx.PostForm("playerName")
 
@@ -105,6 +105,15 @@ func (server *Server) PostLogHandler(ctx *gin.Context) {
 }
 
 // GetLog gets logs from Database
-func GetLog(ctx *gin.Context) {
-
+func (server *Server) GetLog(ctx *gin.Context) {
+	var logs []GachaLog
+	result := server.Database.Model(&GachaLog{}).Find(&logs)
+	if result.Error != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": result.Error,
+		})
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": logs,
+	})
 }
