@@ -23,7 +23,7 @@ type GachaConfigResponse struct {
 
 type GachaLog struct {
 	GachaType string `gorm:"not null" json:"gacha_type"`
-	ID        string `json:"id"` // id for pagination
+	ID        string `gorm:"not null" json:"id"` // id for pagination
 	UID       string `gorm:"not null" json:"uid"`
 	Count     string `gorm:"not null" json:"conut"`
 	ItemID    string `gorm:"not null" json:"item_id"`
