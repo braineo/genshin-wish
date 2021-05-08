@@ -154,3 +154,10 @@ dmypy.json
 cython_debug/
 
 .vscode/
+
+# Executables
+/cli/cli
+genshin-wish
+
+# Database
+genshin.db
