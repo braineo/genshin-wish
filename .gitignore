@@ -157,3 +157,7 @@ cython_debug/
 
 # Executables
 /cli/cli
+genshin-wish
+
+# Database
+genshin.db
