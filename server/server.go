@@ -100,12 +100,16 @@ func (server *Server) FetchLog(ctx *gin.Context) {
 func (server *Server) GetLog(ctx *gin.Context) {
 	UID := ctx.Param("uid")
 	rarity := ctx.Query("rarity") // rank_type
+	gachaType := ctx.Query("gachaType")
+	itemType := ctx.Query("itemType")
 
 	var logs []parser.GachaLog
 
 	result := server.Database.Model(&parser.GachaLog{}).Where(&parser.GachaLog{
 		RankType: rarity,
 		UID:      UID,
+		GachaType: gachaType,
+		ItemType: itemType,
 	}).Find(&logs)
 	if result.Error != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
