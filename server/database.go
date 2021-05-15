@@ -22,12 +22,7 @@ func InitDB() *gorm.DB {
 
 	db.LogMode(true)
 
-	if !db.HasTable(&parser.GachaLog{}) {
-		db.CreateTable(&parser.GachaLog{})
-		db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&parser.GachaLog{})
-	}
-
-	db.AutoMigrate(&parser.GachaLog{})
+	db.AutoMigrate(&parser.GachaLog{}, &parser.GachaConfig{})
 
 	return db
 }
