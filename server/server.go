@@ -34,7 +34,7 @@ func New() Server {
 
 	{
 		v1Route.POST("/log", server.FetchLog)
-		v1Route.GET("/log", server.GetLog)
+		v1Route.GET("/log/:uid", server.GetLog)
 	}
 	return server
 }
@@ -47,7 +47,6 @@ func (server *Server) Run() {
 // FetchLog accept query URL for gacha log to query game server
 func (server *Server) FetchLog(ctx *gin.Context) {
 	rawQuery := ctx.PostForm("query")
-	playerName := ctx.PostForm("playerName")
 
 	p, err := parser.New(rawQuery)
 	if err != nil {
@@ -82,32 +81,32 @@ func (server *Server) FetchLog(ctx *gin.Context) {
 		if len(gachaLogs) == 0 {
 			continue
 		}
-		var lastLog GachaLog
+		UID := gachaLogs[0].UID
+		var lastLog parser.GachaLog
 		server.Database.Where(
-			map[string]interface{}{"gacha_type": gachaConfigKey, "player_name": playerName},
+			map[string]interface{}{"gacha_type": gachaConfigKey, "UID": UID},
 		).Last(&lastLog)
 		for _, gachaLog := range gachaLogs {
 			if gachaLog.Time == lastLog.Time {
 				break
 			}
-			server.Database.Create(GachaLog{
-				GachaLog:   gachaLog,
-				PlayerName: playerName,
-			})
+			server.Database.Create(gachaLog)
 		}
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"test":   rawQuery,
-		"player": playerName,
-	})
 
 }
 
 // GetLog gets logs from Database
 func (server *Server) GetLog(ctx *gin.Context) {
-	var logs []GachaLog
-	result := server.Database.Model(&GachaLog{}).Find(&logs)
+	UID := ctx.Param("uid")
+	rarity := ctx.Query("rarity") // rank_type
+
+	var logs []parser.GachaLog
+
+	result := server.Database.Model(&parser.GachaLog{}).Where(&parser.GachaLog{
+		RankType: rarity,
+		UID:      UID,
+	}).Find(&logs)
 	if result.Error != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": result.Error,

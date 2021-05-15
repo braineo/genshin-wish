@@ -12,10 +12,6 @@ import (
 var log = logging.MustGetLogger("cli")
 
 // GachaLog is Gacha log table record
-type GachaLog struct {
-	parser.GachaLog
-	PlayerName string `gorm:"not null" json:"playerName"`
-}
 
 // InitDB check if database is initiailized
 func InitDB() *gorm.DB {
@@ -26,12 +22,12 @@ func InitDB() *gorm.DB {
 
 	db.LogMode(true)
 
-	if !db.HasTable(&GachaLog{}) {
-		db.CreateTable(&GachaLog{})
-		db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&GachaLog{})
+	if !db.HasTable(&parser.GachaLog{}) {
+		db.CreateTable(&parser.GachaLog{})
+		db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&parser.GachaLog{})
 	}
 
-	db.AutoMigrate(&GachaLog{})
+	db.AutoMigrate(&parser.GachaLog{})
 
 	return db
 }

@@ -1,5 +1,6 @@
 package parser
 
+// Response of gacha config from mihoyo API
 type GachaItem struct {
 	ItemID   string `json:"item_id"`
 	Name     string `json:"name"`
@@ -7,12 +8,14 @@ type GachaItem struct {
 	RankType string `json:"rank_type"`
 }
 
+// Response of gacha config from mihoyo API
 type GachaConfig struct {
 	ID   string `gorm:"not null" json:"id"`
 	Key  string `gorm:"not null" json:"key"`
 	Name string `gorm:"not null" json:"name"`
 }
 
+// Response of gacha config from mihoyo API
 type GachaConfigResponse struct {
 	RetCode int    `json:"retcode"`
 	Message string `json:"message"`
@@ -21,6 +24,7 @@ type GachaConfigResponse struct {
 	} `json:"data"`
 }
 
+// Response of gacha log from mihoyo API
 type GachaLog struct {
 	GachaType string `gorm:"not null" json:"gacha_type"`
 	ID        string `gorm:"not null" json:"id"` // id for pagination
@@ -34,6 +38,7 @@ type GachaLog struct {
 	Lang      string `gorm:"not null" json:"lang"`
 }
 
+// Response of gacha log from mihoyo API
 type GachaLogResponse struct {
 	RetCode int    `json:"retcode"`
 	Message string `json:"message"`
