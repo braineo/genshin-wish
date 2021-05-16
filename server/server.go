@@ -115,65 +115,85 @@ func (server *Server) FetchLogs(ctx *gin.Context) {
 			"error": err,
 		})
 	}
+
+	for _, gachaLogs := range p.GachalLogInPool {
+		if err := server.createWishLogs(&gachaLogs); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": err,
+			})
+		}
+	}
+}
+
+func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
+	if len(*gachaLogs) == 0 {
+		return nil
+	}
+
 	// Timestamp in gacha log are all in UTC-8
 	timezone, _ := time.LoadLocation("Asia/Shanghai")
 
-	for gachaConfigKey, gachaLogs := range p.GachalLogInPool {
-		if len(gachaLogs) == 0 {
-			continue
-		}
-		UID := gachaLogs[0].UID
-		var lastWish WishLog
-		server.Database.Where(
-			map[string]interface{}{"gacha_type": gachaConfigKey, "user_id": UID},
-		).Last(&lastWish)
+	UID := (*gachaLogs)[0].UID
+	gachaConfigKey := (*gachaLogs)[0].GachaType
+	var lastWish WishLog
 
-		pityStar4 := 1
-		if lastWish.PityStar4 > pityStar4 {
-			pityStar4 = lastWish.PityStar4
-		}
-		pityStar5 := 1
-		if lastWish.PityStar5 > pityStar5 {
-			pityStar5 = lastWish.PityStar5
-		}
-		for _, gachaLog := range gachaLogs {
+	endIndex := -1
+	pityStar4 := 1
+	pityStar5 := 1
+
+	// determine range of new values
+	if err := server.Database.Where(
+		map[string]interface{}{"gacha_type": gachaConfigKey, "user_id": UID},
+	).Last(&lastWish); err != nil {
+		log.Debug("no record found, use all logs")
+		endIndex = len(*gachaLogs) - 1
+	} else {
+		log.Debugf("last saved wish ID %s", lastWish.ID)
+		pityStar4 = lastWish.PityStar4
+		pityStar5 = lastWish.PityStar5
+
+		for _, gachaLog := range *gachaLogs {
 			if gachaLog.ID == lastWish.ID {
 				break
 			}
-
-			tm, err := time.ParseInLocation("2006-01-02 15:04:05", gachaLog.Time, timezone)
-			if err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"error": err,
-				})
-			}
-
-			var gachaItem parser.GachaItem
-			server.Database.Where(&parser.GachaItem{Name: gachaLog.Name}).Last(&gachaItem)
-			server.Database.Create(WishLog{
-				ID:        gachaLog.ID,
-				UserID:    gachaLog.UID,
-				GachaType: gachaLog.GachaType,
-				ItemID:    gachaItem.ID,
-				Time:      tm,
-				PityStar4: pityStar4,
-				PityStar5: pityStar5,
-			})
-			// According to study nga bbs. Pity count for 4 star and 5 star items are separated. i.e. this situation can happen 9 3-star items, follows 1 5-star item, then a 4-star item
-			if gachaLog.RankType != "5" {
-				pityStar5 += 1
-			} else {
-				pityStar5 = 1
-			}
-
-			if gachaLog.RankType != "4" {
-				pityStar4 += 1
-			} else {
-				pityStar4 = 1
-			}
+			endIndex += 1
 		}
 	}
 
+	// gacha log parsed in time desc order, process from backwards
+	for index := endIndex; index >= 0; index-- {
+		gachaLog := (*gachaLogs)[index]
+
+		tm, err := time.ParseInLocation("2006-01-02 15:04:05", gachaLog.Time, timezone)
+		if err != nil {
+			return err
+		}
+
+		var gachaItem parser.GachaItem
+		server.Database.Where(&parser.GachaItem{Name: gachaLog.Name}).Last(&gachaItem)
+		server.Database.Create(WishLog{
+			ID:        gachaLog.ID,
+			UserID:    gachaLog.UID,
+			GachaType: gachaLog.GachaType,
+			ItemID:    gachaItem.ID,
+			Time:      tm,
+			PityStar4: pityStar4,
+			PityStar5: pityStar5,
+		})
+		// According to study nga bbs. Pity count for 4 star and 5 star items are separated. i.e. this situation can happen 9 3-star items, follows 1 5-star item, then a 4-star item
+		if gachaLog.RankType != "5" {
+			pityStar5 += 1
+		} else {
+			pityStar5 = 1
+		}
+
+		if gachaLog.RankType != "4" {
+			pityStar4 += 1
+		} else {
+			pityStar4 = 1
+		}
+	}
+	return nil
 }
 
 // GetLogs gets logs from Database
