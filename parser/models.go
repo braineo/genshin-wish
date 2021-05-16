@@ -4,7 +4,7 @@ package parser
 type GachaItem struct {
 	ID       string `json:"item_id"`
 	Name     string `json:"name"`
-	ItemType string `json:"item_type"`
+	ItemType string `gorm:"uniqueIndex" json:"item_type"`
 	RankType string `json:"rank_type"`
 }
 
