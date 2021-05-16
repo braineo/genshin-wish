@@ -6,10 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	// database driver
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/op/go-logging"
 )
-
-var log = logging.MustGetLogger("cli")
 
 // GachaLog is Gacha log table record
 
@@ -22,7 +19,7 @@ func InitDB() *gorm.DB {
 
 	db.LogMode(true)
 
-	db.AutoMigrate(&parser.GachaLog{}, &parser.GachaConfig{})
+	db.AutoMigrate(&WishLog{}, &parser.GachaConfig{}, &parser.GachaItem{})
 
 	return db
 }
