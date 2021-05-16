@@ -62,11 +62,6 @@ func main() {
 		panic(err)
 	}
 	log.Debug(parser.Configs)
-	err = parser.FetchGachaItems()
-	if err != nil {
-		panic(err)
-	}
-	log.Debug(parser.ItemTable)
 
 	err = parser.FetchGachaLog()
 	if err != nil {
