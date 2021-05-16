@@ -3,6 +3,7 @@ package parser
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -18,7 +19,7 @@ var (
 )
 
 const (
-	itemListURL    = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/zh-cn.json"
+	itemListURLt    = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/%s.json"
 	gachaConfigURL = "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getConfigList"
 	gachaLogURL    = "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getGachaLog"
 )
@@ -79,6 +80,7 @@ func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) 
 			ItemCount:             make(map[string]int),
 			ShortestStar5Interval: 90,
 		},
+		Language: ZhCn,
 	}
 
 	for _, opt := range options {
@@ -122,7 +124,7 @@ func (p *GenshinWishParser) FetchGachaConfigs() error {
 func (p *GenshinWishParser) FetchGachaItems() error {
 	log.Infof("正在获取所有物品信息")
 
-	request, err := http.NewRequest("GET", itemListURL, nil)
+	request, err := http.NewRequest("GET", fmt.Sprintf(itemListURLt, p.Language) , nil)
 	if err != nil {
 		return err
 	}
