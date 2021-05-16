@@ -33,7 +33,7 @@ func ExportGachaLog(p *parser.GenshinWishParser, filePath string) error {
 		gachaLogs := p.GachalLogInPool[gachaConfig.Key]
 		for _, gachaLog := range gachaLogs {
 			itemInfo := p.ItemTable[gachaLog.ItemID]
-			writer.Write([]string{gachaLog.UID, itemInfo.ItemID, itemInfo.Name, itemInfo.RankType, gachaConfig.Name, gachaLog.Time})
+			writer.Write([]string{gachaLog.UID, itemInfo.ID, itemInfo.Name, itemInfo.RankType, gachaConfig.Name, gachaLog.Time})
 		}
 	}
 

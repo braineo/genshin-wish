@@ -2,7 +2,7 @@ package parser
 
 // Response of gacha config from mihoyo API
 type GachaItem struct {
-	ItemID   string `json:"item_id"`
+	ID       string `json:"item_id"`
 	Name     string `json:"name"`
 	ItemType string `json:"item_type"`
 	RankType string `json:"rank_type"`
@@ -27,15 +27,16 @@ type GachaConfigResponse struct {
 // Response of gacha log from mihoyo API
 type GachaLog struct {
 	GachaType string `gorm:"not null" json:"gacha_type"`
-	ID        string `gorm:"not null" json:"id"` // id for pagination
+	ID        string `gorm:"primary_key" json:"id"` // id for pagination
 	UID       string `gorm:"not null" json:"uid"`
 	Count     string `gorm:"not null" json:"conut"`
 	ItemID    string `gorm:"not null" json:"item_id"`
-	Time      string `gorm:"not null" json:"time"`
-	ItemType  string `gorm:"not null" json:"item_type"`
-	RankType  string `gorm:"not null" json:"rank_type"`
-	Name      string `gorm:"not null" json:"name"`
-	Lang      string `gorm:"not null" json:"lang"`
+	// Pull time in format "2021-05-06 18:44:47", always in UTC-8
+	Time     string `gorm:"not null;type:datetime" json:"time"`
+	ItemType string `gorm:"not null" json:"item_type"`
+	RankType string `gorm:"not null" json:"rank_type"`
+	Name     string `gorm:"not null" json:"name"`
+	Lang     string `gorm:"not null" json:"lang"`
 }
 
 // Response of gacha log from mihoyo API

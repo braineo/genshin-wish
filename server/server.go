@@ -48,7 +48,7 @@ func (server *Server) Run() {
 func (server *Server) FetchLog(ctx *gin.Context) {
 	rawQuery := ctx.PostForm("query")
 
-	p, err := parser.New(rawQuery)
+	p, err := parser.New(rawQuery, parser.WithLanguage(parser.EnUs))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
@@ -106,10 +106,10 @@ func (server *Server) GetLog(ctx *gin.Context) {
 	var logs []parser.GachaLog
 
 	result := server.Database.Model(&parser.GachaLog{}).Where(&parser.GachaLog{
-		RankType: rarity,
-		UID:      UID,
+		RankType:  rarity,
+		UID:       UID,
 		GachaType: gachaType,
-		ItemType: itemType,
+		ItemType:  itemType,
 	}).Find(&logs)
 	if result.Error != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
