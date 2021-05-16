@@ -6,8 +6,8 @@ import (
 
 	"github.com/braineo/genshin-wish/parser"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/op/go-logging"
+	"gorm.io/gorm"
 )
 
 func handleCors() gin.HandlerFunc {

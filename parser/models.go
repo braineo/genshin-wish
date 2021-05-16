@@ -4,7 +4,7 @@ package parser
 type GachaItem struct {
 	ID       string `json:"item_id"`
 	Name     string `json:"name"`
-	ItemType string `gorm:"uniqueIndex" json:"item_type"`
+	ItemType string `json:"item_type"`
 	RankType string `json:"rank_type"`
 }
 
@@ -27,7 +27,7 @@ type GachaConfigResponse struct {
 // Response of gacha log from mihoyo API
 type GachaLog struct {
 	GachaType string `gorm:"not null" json:"gacha_type"`
-	ID        string `gorm:"primary_key" json:"id"` // id for pagination
+	ID        string `json:"id"` // id for pagination
 	UID       string `gorm:"not null" json:"uid"`
 	Count     string `gorm:"not null" json:"conut"`
 	ItemID    string `gorm:"not null" json:"item_id"`
