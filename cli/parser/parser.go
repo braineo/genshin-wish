@@ -12,7 +12,7 @@ import (
 	"github.com/braineo/genshin-wish/parser"
 )
 
-var log = logging.MustGetLogger("cli")
+var log = logging.MustGetLogger("cli-parser")
 
 func ExportGachaLog(p *parser.GenshinWishParser, filePath string) error {
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0600)
