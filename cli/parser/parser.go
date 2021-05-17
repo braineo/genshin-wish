@@ -12,7 +12,7 @@ import (
 	"github.com/braineo/genshin-wish/parser"
 )
 
-var log = logging.MustGetLogger("cli")
+var log = logging.MustGetLogger("cli-parser")
 
 func ExportGachaLog(p *parser.GenshinWishParser, filePath string) error {
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0600)
@@ -33,7 +33,7 @@ func ExportGachaLog(p *parser.GenshinWishParser, filePath string) error {
 		gachaLogs := p.GachalLogInPool[gachaConfig.Key]
 		for _, gachaLog := range gachaLogs {
 			itemInfo := p.ItemTable[gachaLog.ItemID]
-			writer.Write([]string{gachaLog.UID, itemInfo.ItemID, itemInfo.Name, itemInfo.RankType, gachaConfig.Name, gachaLog.Time})
+			writer.Write([]string{gachaLog.UID, itemInfo.ID, itemInfo.Name, itemInfo.RankType, gachaConfig.Name, gachaLog.Time})
 		}
 	}
 
@@ -62,11 +62,6 @@ func main() {
 		panic(err)
 	}
 	log.Debug(parser.Configs)
-	err = parser.FetchGachaItems()
-	if err != nil {
-		panic(err)
-	}
-	log.Debug(parser.ItemTable)
 
 	err = parser.FetchGachaLog()
 	if err != nil {

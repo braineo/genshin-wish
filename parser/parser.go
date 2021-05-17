@@ -3,6 +3,7 @@ package parser
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -14,13 +15,20 @@ import (
 var (
 	log                 = logging.MustGetLogger("parser")
 	requiredQueryFields = []string{"authkey_ver", "sign_type", "auth_appid",
-		"lang", "game_biz", "authkey", "region", "ext", "game_version"}
+		"lang", "game_biz", "authkey", "ext", "game_version"}
 )
 
 const (
-	itemListURL    = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/zh-cn.json"
+	itemListURLt    = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/%s.json"
 	gachaConfigURL = "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getConfigList"
 	gachaLogURL    = "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getGachaLog"
+)
+
+type Language string
+
+const (
+	ZhCn Language = "zh-cn"
+	EnUs Language = "en-us"
 )
 
 type GenshinWishParser struct {
@@ -32,10 +40,19 @@ type GenshinWishParser struct {
 	GachalLogInPool  map[string][]GachaLog
 	StatisticsInPool map[string]GachaStatistics
 	Statistics       GachaStatistics
+	Language         Language
+}
+
+type ParserOptions func(*GenshinWishParser)
+
+func WithLanguage(l Language) ParserOptions {
+	return func(gwp *GenshinWishParser) {
+		gwp.Language = l
+	}
 }
 
 // New creates parser from query string
-func New(rawQuery string) (*GenshinWishParser, error) {
+func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) {
 	log.Info(rawQuery)
 
 	u, err := url.Parse(rawQuery)
@@ -63,6 +80,11 @@ func New(rawQuery string) (*GenshinWishParser, error) {
 			ItemCount:             make(map[string]int),
 			ShortestStar5Interval: 90,
 		},
+		Language: ZhCn,
+	}
+
+	for _, opt := range options {
+		opt(&parser)
 	}
 
 	return &parser, nil
@@ -102,7 +124,7 @@ func (p *GenshinWishParser) FetchGachaConfigs() error {
 func (p *GenshinWishParser) FetchGachaItems() error {
 	log.Infof("正在获取所有物品信息")
 
-	request, err := http.NewRequest("GET", itemListURL, nil)
+	request, err := http.NewRequest("GET", fmt.Sprintf(itemListURLt, p.Language) , nil)
 	if err != nil {
 		return err
 	}
@@ -120,7 +142,7 @@ func (p *GenshinWishParser) FetchGachaItems() error {
 		return err
 	}
 	for _, item := range gachaItems {
-		p.ItemTable[item.ItemID] = item
+		p.ItemTable[item.ID] = item
 	}
 
 	return nil
@@ -183,6 +205,9 @@ func (p *GenshinWishParser) prepareRequestParams(request *http.Request) url.Valu
 	query := request.URL.Query()
 	for _, name := range requiredQueryFields {
 		query.Set(name, p.Query[name][0])
+	}
+	if p.Language != "" {
+		query.Set("lang", string(p.Language))
 	}
 	return query
 
