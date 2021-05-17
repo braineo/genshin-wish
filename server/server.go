@@ -2,6 +2,8 @@ package server
 
 import (
 	"net/http"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/braineo/genshin-wish/parser"
@@ -159,7 +161,7 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
 			endIndex += 1
 		}
 	}
-
+	reg, _ := regexp.Compile("[^a-zA-Z]+")
 	// gacha log parsed in time desc order, process from backwards
 	for index := endIndex; index >= 0; index-- {
 		gachaLog := (*gachaLogs)[index]
@@ -168,14 +170,12 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
 		if err != nil {
 			return err
 		}
-
-		var gachaItem parser.GachaItem
-		server.Database.Where(&parser.GachaItem{Name: gachaLog.Name}).Last(&gachaItem)
-		server.Database.Create(WishLog{
+		itemId := strings.ToLower(reg.ReplaceAllString(gachaLog.Name, ""))
+		server.Database.FirstOrCreate(&WishLog{
 			ID:        gachaLog.ID,
 			UserID:    gachaLog.UID,
 			GachaType: gachaLog.GachaType,
-			ItemID:    gachaItem.ID,
+			ItemID:    itemId,
 			Time:      tm,
 			PityStar4: pityStar4,
 			PityStar5: pityStar5,
@@ -203,14 +203,23 @@ func (server *Server) GetLogs(ctx *gin.Context) {
 	gachaType := ctx.Query("gachaType")
 	itemType := ctx.Query("itemType")
 
-	var logs []parser.GachaLog
+	var logs []WishLog
+	// inner join, Item is struct field not the type
+	db := server.Database.Debug().Joins("Item").Where(
+		&WishLog{
+			UserID:    UID,
+			GachaType: gachaType,
+		})
 
-	result := server.Database.Model(&parser.GachaLog{}).Where(&parser.GachaLog{
-		RankType:  rarity,
-		UID:       UID,
-		GachaType: gachaType,
-		ItemType:  itemType,
-	}).Find(&logs)
+	if rarity != "" {
+		db = db.Where("item__rarity = ?", rarity)
+	}
+	if itemType != "" {
+		db = db.Where("Item__type = ?", itemType)
+	}
+
+	result := db.Find(&logs)
+
 	if result.Error != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": result.Error,

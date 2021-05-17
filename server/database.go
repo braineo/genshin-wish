@@ -17,7 +17,7 @@ func InitDB() *gorm.DB {
 		panic(err)
 	}
 
-	db.AutoMigrate(&WishLog{}, &parser.GachaConfig{}, &parser.GachaItem{})
+	db.AutoMigrate(&WishLog{}, &parser.GachaConfig{}, &GachaItem{})
 
 	return db
 }

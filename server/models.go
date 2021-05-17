@@ -3,17 +3,18 @@ package server
 import (
 	"time"
 
-	"github.com/braineo/genshin-wish/parser"
+	"gorm.io/gorm"
 )
 
 type WishLog struct {
+	gorm.Model
 	ID        string `json:"id"` // id for pagination
-	GachaType string `json:"gacha_type"`
-	UserID    string `json:"uid"`
+	GachaType string `json:"gachaType"`
+	UserID    string `json:"userId"`
 	// Pull time, should convert from time string to unix timestamp
 	Time      time.Time `json:"time"`
-	ItemID    string
-	Item      parser.GachaItem
+	ItemID    string    `json:"itemId"`
+	Item      GachaItem
 	PityStar4 int `json:"pityStar4"`
 	PityStar5 int `json:"pityStar5"`
 }
@@ -21,4 +22,12 @@ type WishLog struct {
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type GachaItem struct {
+	gorm.Model
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Type   string `json:"type"`
+	Rarity string `json:"rarity"`
 }
