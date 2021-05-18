@@ -91,7 +91,11 @@ func (server *Server) FetchGachaConfigs(ctx *gin.Context) {
 }
 
 func (server *Server) GetGachaConfigs(ctx *gin.Context) {
-
+	var configs []parser.GachaConfig
+	server.Database.Model(&parser.GachaConfig{}).Find(&configs)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": configs,
+	})
 }
 
 // FetchLogs accept query URL for gacha log to query game server
