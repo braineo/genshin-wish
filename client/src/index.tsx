@@ -1,9 +1,17 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { BrowserRouter as Router, Redirect, Route } from "react-router-dom";
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import { setOptions } from 'genshin-db';
+setOptions({
+  matchAliases: false,
+  matchCategories: false,
+  verboseCategories: false,
+  queryLanguages: ['English'],
+  resultLanguage: 'CHS',
+});
 
 ReactDOM.render(
   <React.StrictMode>
@@ -13,7 +21,7 @@ ReactDOM.render(
       </Route>
     </Router>
   </React.StrictMode>,
-  document.getElementById("root")
+  document.getElementById('root'),
 );
 
 // If you want to start measuring performance in your app, pass a function

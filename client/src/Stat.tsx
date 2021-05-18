@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import * as echarts from "echarts";
-import "echarts/lib/chart/line";
-import "echarts/lib/chart/bar";
-import styles from "./Stat.module.less";
+import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
+import * as echarts from 'echarts';
+import 'echarts/lib/chart/line';
+import 'echarts/lib/chart/bar';
+import styles from './Stat.module.less';
 
 type GachaItem = {
   name: string;
-  type: "weapon" | "character";
+  type: 'weapon' | 'character';
   rarity: string;
 };
 type GachaLog = {
@@ -20,7 +20,7 @@ type GachaLog = {
 };
 
 const client = axios.create({
-  baseURL: "/api/v1",
+  baseURL: '/api/v1',
 });
 
 function App() {
@@ -29,10 +29,10 @@ function App() {
   let chartInstance: echarts.ECharts;
   useEffect(() => {
     const fetchLog = async () => {
-      const gachaLog = await client.get<{ data: GachaLog[] }>("log/820575774", {
+      const gachaLog = await client.get<{ data: GachaLog[] }>('log/820575774', {
         params: {
-          rarity: "5",
-          itemType: "character",
+          rarity: '5',
+          itemType: 'character',
         },
       });
       setGachaLogs(gachaLog.data.data);
@@ -55,17 +55,17 @@ function App() {
 
     chartInstance.setOption({
       title: {
-        text: "抽卡动态",
+        text: '抽卡动态',
       },
       xAxis: {
-        type: "category",
-        name: "物品",
-        data: gachaLogs.map((log) => log.Item.name),
+        type: 'category',
+        name: '物品',
+        data: gachaLogs.map(log => log.Item.name),
       },
       yAxis: {
-        name: "抽数",
+        name: '抽数',
       },
-      series: [{ type: "bar", data: gachaLogs.map((log) => log.pityStar5) }],
+      series: [{ type: 'bar', data: gachaLogs.map(log => log.pityStar5) }],
     });
   });
 
