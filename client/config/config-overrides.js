@@ -13,7 +13,6 @@ module.exports = {
       lessOptions: {
         javascriptEnabled: true,
         modifyVars: getThemeVariables({
-          dark: true,
         }),
         cssModules: {
           localIdentName:

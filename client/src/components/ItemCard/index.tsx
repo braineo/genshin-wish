@@ -13,12 +13,22 @@ type ItemCardProps = {
   rarity: string;
 };
 
-const isCharacter = (item : Character | Weapon): item is Character=>{
-  if (Object.keys(item).includes("gender")) {
-return true
+const toEnElement = (cnElement: string): string => {
+  switch (cnElement) {
+    case '冰':
+      return 'cryo';
+    case '火':
+      return 'pyro';
   }
-  return false
-}
+  return '';
+};
+
+const isCharacter = (item: Character | Weapon): item is Character => {
+  if (Object.keys(item).includes('gender')) {
+    return true;
+  }
+  return false;
+};
 
 const ItemCard: React.FC<ItemCardProps> = props => {
   let itemInfo: Character | Weapon | null;
@@ -48,11 +58,23 @@ const ItemCard: React.FC<ItemCardProps> = props => {
         </span>
         <RarityIndicator rarity={parseInt(props.rarity)} />
       </div>
-      <span>{isCharacter(itemInfo) ? itemInfo.element : itemInfo.weapontype}</span>
-      <img src=""/>
-      <span className={styles.name}>{itemInfo.name}</span>
-      {props.rarity === '4' ? <span className={styles.pity}>{props.pityStar4}</span> : null}
-      {props.rarity === '5' ? <span className={styles.pity}>{props.pityStar5}</span> : null}
+      <span></span>
+      <span
+        className={classNames(
+          styles.name,
+          isCharacter(itemInfo)
+            ? styles[`${toEnElement(itemInfo.element)}Text`]
+            : '',
+        )}
+      >{`${itemInfo.name}(${
+        isCharacter(itemInfo) ? itemInfo.element : itemInfo.weapontype
+      })`}</span>
+      {props.rarity === '4' ? (
+        <span className={styles.pity}>{props.pityStar4}</span>
+      ) : null}
+      {props.rarity === '5' ? (
+        <span className={styles.pity}>{props.pityStar5}</span>
+      ) : null}
     </li>
   );
 };

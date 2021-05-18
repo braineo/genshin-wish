@@ -1,17 +1,15 @@
+@import (reference) './palette.less';
+
 .star5Bg {
-  background: rgb(149, 104, 66);
-  background: linear-gradient(
-    180deg,
-    rgba(149, 104, 66, 1) 0%,
-    rgba(216, 142, 76, 1) 100%
-  );
+  background: linear-gradient(180deg, #956842 0%, #d88e4c 100%);
 }
 
 .star4Bg {
-  background: rgb(119, 94, 155);
-  background: linear-gradient(
-    169deg,
-    rgba(119, 94, 155, 1) 0%,
-    rgba(148, 112, 199, 1) 100%
-  );
+  background: linear-gradient(169deg, #775e9b 0%, #9470c7 100%);
 }
+
+each(@elements, {
+  .@{value}Text {
+    color: darken(@@value, 40%);
+  }
+})
