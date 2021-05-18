@@ -13,6 +13,13 @@ type ItemCardProps = {
   rarity: string;
 };
 
+const isCharacter = (item : Character | Weapon): item is Character=>{
+  if (Object.keys(item).includes("gender")) {
+return true
+  }
+  return false
+}
+
 const ItemCard: React.FC<ItemCardProps> = props => {
   let itemInfo: Character | Weapon | null;
   if (props.itemType === 'character') {
@@ -26,20 +33,26 @@ const ItemCard: React.FC<ItemCardProps> = props => {
 
   return (
     <li className={styles.item}>
-      <div
-        className={classNames(
-          styles.iconWrapper,
-          styles[`star${props.rarity}Bg`],
-        )}
-      >
-        <img
-          className={styles.icon}
-          src={itemInfo.images.icon}
-          alt="item-icon"
-        />
+      <div className={styles.avatar}>
+        <span
+          className={classNames(
+            styles.iconWrapper,
+            styles[`star${props.rarity}Bg`],
+          )}
+        >
+          <img
+            className={styles.icon}
+            src={itemInfo.images.icon}
+            alt="item-icon"
+          />
+        </span>
+        <RarityIndicator rarity={parseInt(props.rarity)} />
       </div>
-      <RarityIndicator rarity={parseInt(props.rarity)} />
-      <div>{itemInfo.name}</div>
+      <span>{isCharacter(itemInfo) ? itemInfo.element : itemInfo.weapontype}</span>
+      <img src=""/>
+      <span className={styles.name}>{itemInfo.name}</span>
+      {props.rarity === '4' ? <span className={styles.pity}>{props.pityStar4}</span> : null}
+      {props.rarity === '5' ? <span className={styles.pity}>{props.pityStar5}</span> : null}
     </li>
   );
 };
