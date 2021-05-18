@@ -1,11 +1,11 @@
 /// <reference types="react-scripts" />
 
-declare module "*.module.less" {
+declare module '*.module.less' {
   const classes: { [key: string]: string };
   export default classes;
 }
 
-declare module "genshin-db" {
+declare module 'genshin-db' {
   export type ConfigOptions = {
     matchAliases: boolean; // Allows the matching of aliases.
     matchCategories: boolean; // Allows the matching of categories. If true, then returns an array if it matches.
@@ -45,7 +45,7 @@ declare module "genshin-db" {
       sideicon: string;
       cover1?: string;
       cover2?: string;
-      "hoyolab-avatar"?: string;
+      'hoyolab-avatar'?: string;
     };
     url: { fandom: string };
   };
@@ -75,6 +75,6 @@ declare module "genshin-db" {
   };
 
   export function setOptions(opts: ConfigOptions): void;
-  export function character(query: string, opts: ConfigOptions): ?Character;
-  export function weapon(query: string, opts: ConfigOptions): ?Weapon;
+  export function character(query: string, opts?: ConfigOptions): ?Character;
+  export function weapon(query: string, opts?: ConfigOptions): ?Weapon;
 }
