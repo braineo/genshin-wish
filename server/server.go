@@ -39,6 +39,8 @@ func New() Server {
 	v1Route := engine.Group("api/v1")
 
 	{
+		v1Route.GET("/user", server.GetUsers)
+
 		v1Route.POST("/log", server.FetchLogs)
 		v1Route.GET("/log/:uid", server.GetLogs)
 
@@ -55,6 +57,15 @@ func New() Server {
 func (server *Server) Run() {
 
 	server.Engine.Run(":8080")
+}
+
+func (server *Server) GetUsers(ctx *gin.Context) {
+	var userIDs []string
+	server.Database.Model(&WishLog{}).Distinct().Pluck("UserID", &userIDs)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": userIDs,
+	})
 }
 
 func (server *Server) FetchGachaItems(ctx *gin.Context) {
