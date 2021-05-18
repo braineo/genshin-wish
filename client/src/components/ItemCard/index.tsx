@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Character, character, weapon, Weapon } from 'genshin-db';
 import styles from './index.module.less';
+import RarityIndicator from '../RarityIndicator';
 
 type ItemCardProps = {
   itemId: string;
@@ -37,6 +38,7 @@ const ItemCard: React.FC<ItemCardProps> = props => {
           alt="item-icon"
         />
       </div>
+      <RarityIndicator rarity={parseInt(props.rarity)} />
       <div>{itemInfo.name}</div>
     </li>
   );
