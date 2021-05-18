@@ -1,77 +1,44 @@
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import * as echarts from "echarts";
-import "echarts/lib/chart/line";
-import "echarts/lib/chart/bar";
-import styles from "./App.module.scss";
+import { useAxios } from "./axios";
+import styles from "./App.module.less";
+import { Tabs } from "antd";
+import { Route, useHistory, useParams } from "react-router";
+const { TabPane } = Tabs;
 
-type GachaItem = {
+type GachaConfig = {
   name: string;
-  type: "weapon" | "character";
-  rarity: string;
+  key: string;
 };
-type GachaLog = {
-  gachaType: string;
-  id: string;
-  Item: GachaItem;
-  time: string;
-  pityStar4: number;
-  pityStar5: number;
-};
-
-const client = axios.create({
-  baseURL: "/api/v1",
-});
 
 function App() {
-  const [gachaLogs, setGachaLogs] = useState<GachaLog[]>([]);
-  const chartRef = useRef<HTMLDivElement>(null);
-  let chartInstance: echarts.ECharts;
+  const client = useAxios();
+  const [gachaConfigs, setGachaConfigs] = useState<GachaConfig[]>([]);
+  const params = useParams<{ configKey: string }>();
+  const history = useHistory();
   useEffect(() => {
-    const fetchLog = async () => {
-      const gachaLog = await client.get<{ data: GachaLog[] }>("log/820575774", {
-        params: {
-          rarity: "5",
-          itemType: "character",
-        },
-      });
-      setGachaLogs(gachaLog.data.data);
+    const fetchConfigs = async () => {
+      const gachaLog = await client.get<{ data: GachaConfig[] }>("gacha");
+      setGachaConfigs(gachaLog.data.data);
     };
-    fetchLog();
-
-    return () => {
-      chartInstance && chartInstance.dispose();
-    };
+    fetchConfigs();
   }, []);
 
-  useEffect(() => {
-    if (!chartRef.current || gachaLogs.length === 0) {
-      return;
-    }
-    let chartInstance = echarts.getInstanceByDom(chartRef.current);
-    if (!chartInstance) {
-      chartInstance = echarts.init(chartRef.current);
-    }
+  const handleTabChange = (key: string) => {
+    history.push(key);
+  };
 
-    chartInstance.setOption({
-      title: {
-        text: "抽卡动态",
-      },
-      xAxis: {
-        type: "category",
-        name: "物品",
-        data: gachaLogs.map((log) => log.Item.name),
-      },
-      yAxis: {
-        name: "抽数",
-      },
-      series: [{ type: "bar", data: gachaLogs.map((log) => log.pityStar5) }],
-    });
-  });
+  console.log(params.configKey);
+  const tabs = [{ name: "全部", key: "all" }, ...gachaConfigs];
 
-  // const chartOption
-
-  return <div className={styles.pullChart} ref={chartRef} />;
+  return (
+    <Tabs onChange={handleTabChange} type="card" activeKey={params.configKey}>
+      {tabs.map((config) => (
+        <TabPane tab={config.name} key={config.key}>
+          Content of Tab Pane 1
+        </TabPane>
+      ))}
+    </Tabs>
+  );
 }
 
 export default App;
