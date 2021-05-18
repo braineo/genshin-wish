@@ -4,6 +4,7 @@ import styles from './App.module.less';
 import { Tabs } from 'antd';
 import { useHistory, useParams } from 'react-router';
 import ItemCard from './components/ItemCard';
+import ItemList from './components/ItemList';
 const { TabPane } = Tabs;
 
 type GachaConfig = {
@@ -34,17 +35,7 @@ function App() {
     <Tabs onChange={handleTabChange} type="card" activeKey={params.configKey}>
       {tabs.map(config => (
         <TabPane tab={config.name} key={config.key}>
-          <ul>
-            <ItemCard
-              key="1"
-              itemId="ganyu"
-              itemType="character"
-              pityStar4="9"
-              pityStar5="80"
-              rarity="5"
-              time="2021-04-28T18:26:03+08:00"
-            />
-          </ul>
+          <ItemList />
         </TabPane>
       ))}
     </Tabs>

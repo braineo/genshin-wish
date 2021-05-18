@@ -6,8 +6,8 @@ import RarityIndicator from '../RarityIndicator';
 
 type ItemCardProps = {
   itemId: string;
-  pityStar4: string;
-  pityStar5: string;
+  pityStar4: number;
+  pityStar5: number;
   time: string;
   itemType: 'weapon' | 'character';
   rarity: string;
