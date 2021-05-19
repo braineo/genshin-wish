@@ -63,11 +63,12 @@ func (server *Server) Run() {
 }
 
 func (server *Server) GetUsers(ctx *gin.Context) {
-	var userIDs []string
-	server.Database.Model(&WishLog{}).Distinct().Pluck("UserID", &userIDs)
+
+	var users []User
+	server.Database.Model(&User{}).Find(&users)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": userIDs,
+		"data": users,
 	})
 }
 
