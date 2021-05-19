@@ -1,8 +1,10 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -217,6 +219,11 @@ func (server *Server) GetLogs(ctx *gin.Context) {
 	rarity := ctx.Query("rarity") // rank_type
 	gachaType := ctx.Query("gachaType")
 	itemType := ctx.Query("itemType")
+	size := ctx.Query("size")
+	orderBy := ctx.Query("orderBy")
+	sortOrder := ctx.Query("sort")
+
+	// cursor := ctx.Query("cursor")
 
 	var logs []WishLog
 	// inner join, Item is struct field not the type
@@ -225,13 +232,35 @@ func (server *Server) GetLogs(ctx *gin.Context) {
 			UserID:    UID,
 			GachaType: gachaType,
 		})
+	querySplitFn := func(c rune) bool {
+		return c == '+'
+	}
+	rarities := strings.FieldsFunc(rarity, querySplitFn)
+	if len(rarities) == 1 {
+		db = db.Where("item__rarity = ?", rarities[0])
+	} else if len(rarities) > 1 {
+		db = db.Where("item__rarity in (?)", rarities)
+	}
 
-	if rarity != "" {
-		db = db.Where("item__rarity = ?", rarity)
+	if size != "" {
+		limit, err := strconv.Atoi(size)
+		if err == nil {
+			db = db.Limit(limit)
+		}
 	}
 	if itemType != "" {
 		db = db.Where("Item__type = ?", itemType)
 	}
+
+	if orderBy == "" {
+		orderBy = "id"
+	}
+	orderBy = fmt.Sprintf("wish_logs.%s", orderBy)
+	if sortOrder == "" {
+		sortOrder = "DESC"
+	}
+
+	db = db.Order(strings.Join([]string{orderBy, sortOrder}, " "))
 
 	result := db.Find(&logs)
 
