@@ -14,12 +14,11 @@ import (
 
 var (
 	log                 = logging.MustGetLogger("parser")
-	requiredQueryFields = []string{"authkey_ver", "sign_type", "auth_appid",
-		"lang", "game_biz", "authkey", "ext", "game_version"}
+	requiredQueryFields = []string{"authkey_ver", "sign_type", "auth_appid", "lang", "game_biz", "authkey"}
 )
 
 const (
-	itemListURLt    = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/%s.json"
+	itemListURLt   = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/%s.json"
 	gachaConfigURL = "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getConfigList"
 	gachaLogURL    = "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getGachaLog"
 )
@@ -124,7 +123,7 @@ func (p *GenshinWishParser) FetchGachaConfigs() error {
 func (p *GenshinWishParser) FetchGachaItems() error {
 	log.Infof("正在获取所有物品信息")
 
-	request, err := http.NewRequest("GET", fmt.Sprintf(itemListURLt, p.Language) , nil)
+	request, err := http.NewRequest("GET", fmt.Sprintf(itemListURLt, p.Language), nil)
 	if err != nil {
 		return err
 	}
