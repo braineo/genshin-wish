@@ -123,11 +123,22 @@ func (server *Server) GetGachaConfigs(ctx *gin.Context) {
 	})
 }
 
+type queryInfo struct {
+	Query string `json:"query"`
+}
+
 // FetchLogs accept query URL for gacha log to query game server
 func (server *Server) FetchLogs(ctx *gin.Context) {
-	rawQuery := ctx.PostForm("query")
 
-	p, err := parser.New(rawQuery, parser.WithLanguage(parser.EnUs))
+	var query queryInfo
+	if err := ctx.ShouldBind(&query); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+	}
+
+	p, err := parser.New(query.Query, parser.WithLanguage(parser.EnUs))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
