@@ -8,19 +8,24 @@ import styles from './index.module.less';
 import { WishLog } from 'genshin-wish';
 import ItemList from '../../components/ItemList';
 import StatisticsNumbers from './Statistics';
+import { useParams } from 'react-router';
 
 const client = axios.create({
   baseURL: '/api/v1',
 });
 
 const Stat: React.FC = () => {
+  const { userId, configKey } =
+    useParams<{ userId: string; configKey: string }>();
   const [wishLogs, setWishLogs] = useState<WishLog[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
   let chartInstance: echarts.ECharts;
   useEffect(() => {
     const fetchLog = async () => {
-      const gachaLog = await client.get<{ data: WishLog[] }>('log/815648055', {
-        params: {},
+      const gachaLog = await client.get<{ data: WishLog[] }>(`log/${userId}`, {
+        params: {
+          gachaType: configKey === 'all' ? '' : configKey,
+        },
       });
       setWishLogs(gachaLog.data.data);
     };

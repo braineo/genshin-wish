@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useAxios } from '../../utils/axios';
 import styles from './App.module.less';
 import { Tabs } from 'antd';
-import { useHistory, useParams } from 'react-router';
+import { Switch, Route, useHistory, useParams } from 'react-router';
 import Stat from '../Stat';
+import Home from '../Home';
 const { TabPane } = Tabs;
 
 type GachaConfig = {
@@ -31,13 +32,24 @@ function App() {
   const tabs = [{ name: '全部', key: 'all' }, ...gachaConfigs];
 
   return (
-    <Tabs onChange={handleTabChange} type="card" activeKey={params.configKey}>
-      {tabs.map(config => (
-        <TabPane tab={config.name} key={config.key}>
-          <Stat />
-        </TabPane>
-      ))}
-    </Tabs>
+    <Switch>
+      <Route path="/stat/:userId/:configKey">
+        <Tabs
+          onChange={handleTabChange}
+          type="card"
+          activeKey={params.configKey}
+        >
+          {tabs.map(config => (
+            <TabPane tab={config.name} key={config.key}>
+              <Stat />
+            </TabPane>
+          ))}
+        </Tabs>
+      </Route>
+      <Route path="/">
+        <Home />
+      </Route>
+    </Switch>
   );
 }
 
