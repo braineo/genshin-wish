@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Character, character, weapon, Weapon } from 'genshin-db';
 import styles from './index.module.less';
 import RarityIndicator from '../RarityIndicator';
+import { toEnElement } from '../../utils';
 
 type ItemCardProps = {
   itemId: string;
@@ -11,16 +12,6 @@ type ItemCardProps = {
   time: string;
   itemType: 'weapon' | 'character';
   rarity: string;
-};
-
-const toEnElement = (cnElement: string): string => {
-  switch (cnElement) {
-    case '冰':
-      return 'cryo';
-    case '火':
-      return 'pyro';
-  }
-  return '';
 };
 
 const isCharacter = (item: Character | Weapon): item is Character => {
