@@ -1,41 +1,28 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { Row, Col } from 'antd';
 import axios from 'axios';
 import * as echarts from 'echarts';
 import 'echarts/lib/chart/line';
 import 'echarts/lib/chart/bar';
-import styles from './Stat.module.less';
-
-type GachaItem = {
-  name: string;
-  type: 'weapon' | 'character';
-  rarity: string;
-};
-type GachaLog = {
-  gachaType: string;
-  id: string;
-  Item: GachaItem;
-  time: string;
-  pityStar4: number;
-  pityStar5: number;
-};
+import styles from './index.module.less';
+import { WishLog } from 'genshin-wish';
+import ItemList from '../components/ItemList';
+import StatisticsNumbers from './Statistics';
 
 const client = axios.create({
   baseURL: '/api/v1',
 });
 
-function App() {
-  const [gachaLogs, setGachaLogs] = useState<GachaLog[]>([]);
+const Stat: React.FC = () => {
+  const [wishLogs, setWishLogs] = useState<WishLog[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
   let chartInstance: echarts.ECharts;
   useEffect(() => {
     const fetchLog = async () => {
-      const gachaLog = await client.get<{ data: GachaLog[] }>('log/820575774', {
-        params: {
-          rarity: '5',
-          itemType: 'character',
-        },
+      const gachaLog = await client.get<{ data: WishLog[] }>('log/820575774', {
+        params: {},
       });
-      setGachaLogs(gachaLog.data.data);
+      setWishLogs(gachaLog.data.data);
     };
     fetchLog();
 
@@ -45,7 +32,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!chartRef.current || gachaLogs.length === 0) {
+    if (!chartRef.current || wishLogs.length === 0) {
       return;
     }
     let chartInstance = echarts.getInstanceByDom(chartRef.current);
@@ -60,18 +47,28 @@ function App() {
       xAxis: {
         type: 'category',
         name: '物品',
-        data: gachaLogs.map(log => log.Item.name),
+        data: wishLogs.map(log => log.Item.name),
       },
       yAxis: {
         name: '抽数',
       },
-      series: [{ type: 'bar', data: gachaLogs.map(log => log.pityStar5) }],
+      series: [{ type: 'bar', data: wishLogs.map(log => log.pityStar5) }],
     });
   });
 
   // const chartOption
 
-  return <div className={styles.pullChart} ref={chartRef} />;
-}
+  return (
+    <Row>
+      <Col span={8}>
+        <ItemList />
+      </Col>
+      <Col span={16}>
+        <StatisticsNumbers wishLogs={wishLogs} />
+        <div className={styles.pullChart} ref={chartRef} />
+      </Col>
+    </Row>
+  );
+};
 
-export default App;
+export default Stat;

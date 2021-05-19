@@ -5,6 +5,23 @@ declare module '*.module.less' {
   export default classes;
 }
 
+declare module 'genshin-wish' {
+  export type WishLog = {
+    gachaType: string;
+    id: string;
+    Item: GachaItem;
+    time: string;
+    pityStar4: number;
+    pityStar5: number;
+  };
+  export type GachaItem = {
+    id: string;
+    name: string;
+    type: 'weapon' | 'character';
+    rarity: string;
+  };
+}
+
 declare module 'genshin-db' {
   export type ConfigOptions = {
     matchAliases: boolean; // Allows the matching of aliases.

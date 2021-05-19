@@ -3,8 +3,7 @@ import { useAxios } from './axios';
 import styles from './App.module.less';
 import { Tabs } from 'antd';
 import { useHistory, useParams } from 'react-router';
-import ItemCard from './components/ItemCard';
-import ItemList from './components/ItemList';
+import Stat from './Stat';
 const { TabPane } = Tabs;
 
 type GachaConfig = {
@@ -35,7 +34,7 @@ function App() {
     <Tabs onChange={handleTabChange} type="card" activeKey={params.configKey}>
       {tabs.map(config => (
         <TabPane tab={config.name} key={config.key}>
-          <ItemList />
+          <Stat />
         </TabPane>
       ))}
     </Tabs>
