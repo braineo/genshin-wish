@@ -42,6 +42,7 @@ func New() Server {
 
 	{
 		v1Route.GET("/user", server.GetUsers)
+		v1Route.PUT("/user/", server.UpdateUser)
 
 		v1Route.POST("/log", server.FetchLogs)
 		v1Route.GET("/log/:uid", server.GetLogs)
@@ -70,12 +71,33 @@ func (server *Server) GetUsers(ctx *gin.Context) {
 	})
 }
 
+func (server *Server) UpdateUser(ctx *gin.Context) {
+	var updatedUser User
+	if ctx.ShouldBind(&updatedUser) == nil {
+		if updatedUser.ID == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": "ID cannot be empty",
+			})
+			return
+		}
+		var user User
+		server.Database.First(&user, "id = ?", updatedUser.ID)
+		if user.ID == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("Cannot find user %s", updatedUser.ID),
+			})
+			return
+		}
+		server.Database.Model(&user).Updates(updatedUser)
+	}
+}
+
 func (server *Server) FetchGachaItems(ctx *gin.Context) {
 	rawQuery := ctx.PostForm("query")
 	p, err := parser.New(rawQuery, parser.WithLanguage(parser.EnUs))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 	p.FetchGachaItems()
@@ -189,8 +211,11 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
 		}
 		itemId := strings.ToLower(reg.ReplaceAllString(gachaLog.Name, ""))
 		server.Database.FirstOrCreate(&WishLog{
-			ID:        gachaLog.ID,
-			UserID:    gachaLog.UID,
+			ID:     gachaLog.ID,
+			UserID: gachaLog.UID,
+			User: User{
+				ID: gachaLog.UID,
+			},
 			GachaType: gachaLog.GachaType,
 			ItemID:    itemId,
 			Time:      tm,

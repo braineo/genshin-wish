@@ -11,6 +11,7 @@ type WishLog struct {
 	ID        string `json:"id"` // id for pagination
 	GachaType string `json:"gachaType"`
 	UserID    string `json:"userId"`
+	User      User
 	// Pull time, should convert from time string to unix timestamp
 	Time      time.Time `json:"time"`
 	ItemID    string    `json:"itemId"`
