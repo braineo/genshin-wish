@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useAxios } from './axios';
+import { useAxios } from '../../utils/axios';
 import styles from './App.module.less';
 import { Tabs } from 'antd';
 import { useHistory, useParams } from 'react-router';
-import Stat from './Stat';
+import Stat from '../Stat';
 const { TabPane } = Tabs;
 
 type GachaConfig = {

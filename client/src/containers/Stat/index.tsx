@@ -6,7 +6,7 @@ import 'echarts/lib/chart/line';
 import 'echarts/lib/chart/bar';
 import styles from './index.module.less';
 import { WishLog } from 'genshin-wish';
-import ItemList from '../components/ItemList';
+import ItemList from '../../components/ItemList';
 import StatisticsNumbers from './Statistics';
 
 const client = axios.create({
@@ -19,7 +19,7 @@ const Stat: React.FC = () => {
   let chartInstance: echarts.ECharts;
   useEffect(() => {
     const fetchLog = async () => {
-      const gachaLog = await client.get<{ data: WishLog[] }>('log/820575774', {
+      const gachaLog = await client.get<{ data: WishLog[] }>('log/815648055', {
         params: {},
       });
       setWishLogs(gachaLog.data.data);
