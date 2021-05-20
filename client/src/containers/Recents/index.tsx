@@ -1,6 +1,8 @@
 import React from 'react';
+import { Col } from 'antd';
 import { useParams } from 'react-router';
 import RecentItems from './RecentItems';
+import styles from './index.module.less';
 
 const Recents: React.FC = () => {
   const { userId, configKey } =
@@ -11,7 +13,7 @@ const Recents: React.FC = () => {
     { title: '最近四星', rarity: '4' },
   ];
   return (
-    <div>
+    <Col>
       {itemConfigs.map((data, index) => (
         <RecentItems
           key={index}
@@ -22,7 +24,7 @@ const Recents: React.FC = () => {
           size={3}
         />
       ))}
-    </div>
+    </Col>
   );
 };
 

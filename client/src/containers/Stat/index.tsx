@@ -92,10 +92,10 @@ const Stat: React.FC = () => {
 
   return (
     <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-      <Col span={6}>
+      <Col xs={16} sm={12} md={8} lg={8} xl={6}>
         <Recents />
       </Col>
-      <Col span={18}>
+      <Col xs={8} sm={12} md={16} lg={16} xl={18}>
         <StatisticsNumbers wishLogs={wishLogs} />
         <div className={styles.pullChart} ref={chartRef} />
       </Col>

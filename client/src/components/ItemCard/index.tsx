@@ -21,6 +21,32 @@ const isCharacter = (item: Character | Weapon): item is Character => {
   return false;
 };
 
+const dateTimeFormatter = Intl.DateTimeFormat('zh', {
+  timeZone: 'Asia/Shanghai',
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+});
+
+const ItemName: React.FC<{ itemInfo: Character | Weapon | null }> = props => {
+  const { itemInfo } = props;
+  if (!itemInfo) {
+    return <span></span>;
+  }
+  return (
+    <span
+      className={classNames(
+        styles.name,
+        isCharacter(itemInfo)
+          ? styles[`${toEnElement(itemInfo.element)}Text`]
+          : '',
+      )}
+    >{`${itemInfo.name}(${
+      isCharacter(itemInfo) ? itemInfo.element : itemInfo.weapontype
+    })`}</span>
+  );
+};
+
 const ItemCard: React.FC<ItemCardProps> = props => {
   let itemInfo: Character | Weapon | null;
   if (props.itemType === 'character') {
@@ -32,8 +58,8 @@ const ItemCard: React.FC<ItemCardProps> = props => {
     return <div />;
   }
 
-  return (
-    <li className={styles.item}>
+  const Avatar: React.FC = () => {
+    return (
       <div className={styles.avatar}>
         <span
           className={classNames(
@@ -43,23 +69,20 @@ const ItemCard: React.FC<ItemCardProps> = props => {
         >
           <img
             className={styles.icon}
-            src={itemInfo.images.icon}
+            src={itemInfo?.images.icon}
             alt="item-icon"
           />
         </span>
         <RarityIndicator rarity={parseInt(props.rarity)} />
       </div>
-      <span></span>
-      <span
-        className={classNames(
-          styles.name,
-          isCharacter(itemInfo)
-            ? styles[`${toEnElement(itemInfo.element)}Text`]
-            : '',
-        )}
-      >{`${itemInfo.name}(${
-        isCharacter(itemInfo) ? itemInfo.element : itemInfo.weapontype
-      })`}</span>
+    );
+  };
+
+  return (
+    <li className={styles.item}>
+      <Avatar />
+      <ItemName itemInfo={itemInfo} />
+      <span>{dateTimeFormatter.format(new Date(props.time))}</span>
       {props.rarity === '4' ? (
         <span className={styles.pity}>{props.pityStar4}</span>
       ) : null}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAxios } from '../../utils/axios';
 import { WishLog } from 'genshin-wish';
 import ItemList from '../../components/ItemList';
+import styles from './index.module.less';
 
 type RecentItemsProps = {
   userId: string;
@@ -31,7 +32,12 @@ const Recents: React.FC<RecentItemsProps> = props => {
     fetchLog();
   }, []);
 
-  return <ItemList wishLogs={recentLogs} />;
+  return (
+    <div className={styles.recentItems}>
+      {props.title}
+      <ItemList wishLogs={recentLogs} />
+    </div>
+  );
 };
 
 export default Recents;

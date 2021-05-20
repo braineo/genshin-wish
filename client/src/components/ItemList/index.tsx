@@ -1,6 +1,7 @@
 import React from 'react';
 import ItemCard from '../ItemCard';
 import { WishLog } from 'genshin-wish';
+import styles from './index.module.less';
 
 type ItemListProps = {
   wishLogs: WishLog[];
@@ -8,7 +9,7 @@ type ItemListProps = {
 
 const ItemList: React.FC<ItemListProps> = props => {
   return (
-    <ul>
+    <ul className={styles.itemList}>
       {props.wishLogs.map((log, index) => (
         <ItemCard
           key={index}
