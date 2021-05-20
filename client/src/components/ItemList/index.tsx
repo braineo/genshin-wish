@@ -1,27 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useAxios } from '../../utils/axios';
+import React from 'react';
 import ItemCard from '../ItemCard';
 import { WishLog } from 'genshin-wish';
 
-const ItemList: React.FC = () => {
-  const [wishLogs, setWishLogs] = useState<WishLog[]>([]);
-  const client = useAxios();
-  useEffect(() => {
-    const fetchLog = async () => {
-      const gachaLog = await client.get<{ data: WishLog[] }>('log/815648055', {
-        params: {
-          rarity: '5',
-          itemType: '',
-        },
-      });
-      setWishLogs(gachaLog.data.data);
-    };
-    fetchLog();
-  }, []);
+type ItemListProps = {
+  wishLogs: WishLog[];
+};
 
+const ItemList: React.FC<ItemListProps> = props => {
   return (
     <ul>
-      {wishLogs.map((log, index) => (
+      {props.wishLogs.map((log, index) => (
         <ItemCard
           key={index}
           itemType={log.Item.type}

@@ -6,8 +6,8 @@ import 'echarts/lib/chart/line';
 import 'echarts/lib/chart/bar';
 import styles from './index.module.less';
 import { WishLog } from 'genshin-wish';
-import ItemList from '../../components/ItemList';
 import StatisticsNumbers from './Statistics';
+import Recents from '../Recents';
 import { useParams } from 'react-router';
 
 const client = axios.create({
@@ -66,7 +66,7 @@ const Stat: React.FC = () => {
   return (
     <Row>
       <Col span={8}>
-        <ItemList />
+        <Recents />
       </Col>
       <Col span={16}>
         <StatisticsNumbers wishLogs={wishLogs} />
