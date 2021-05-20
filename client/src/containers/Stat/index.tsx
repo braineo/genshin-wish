@@ -44,20 +44,47 @@ const Stat: React.FC = () => {
     if (!chartInstance) {
       chartInstance = echarts.init(chartRef.current);
     }
+    type Indexable = {
+      [key: string]: number;
+    };
+    const rarityItemCount: Indexable = { '3': 0, '4': 0, '5': 0 };
 
     chartInstance.setOption({
       title: {
-        text: '抽卡动态',
+        text: '物品分布',
       },
-      xAxis: {
-        type: 'category',
-        name: '物品',
-        data: wishLogs.map(log => log.Item.name),
-      },
-      yAxis: {
-        name: '抽数',
-      },
-      series: [{ type: 'bar', data: wishLogs.map(log => log.pityStar5) }],
+
+      series: [
+        {
+          type: 'pie',
+          radius: [20, 60],
+          left: 'center',
+          height: '100%',
+          width: '100%',
+          label: {
+            alignTo: 'edge',
+            formatter: '{name|{b}}\n{time|{c} %}',
+            minMargin: 5,
+            edgeDistance: 10,
+            lineHeight: 15,
+            rich: {
+              time: {
+                fontSize: 10,
+                color: '#999',
+              },
+            },
+          },
+          data: Object.entries(
+            wishLogs.reduce((prev, current) => {
+              prev[current.Item.rarity] = prev[current.Item.rarity] + 1;
+              return prev;
+            }, rarityItemCount),
+          ).map(elem => ({
+            name: `${elem[0]}星物品`,
+            value: Number(((elem[1] / wishLogs.length) * 100).toPrecision(3)),
+          })),
+        },
+      ],
     });
   });
 
