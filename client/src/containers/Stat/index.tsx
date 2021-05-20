@@ -91,11 +91,11 @@ const Stat: React.FC = () => {
   // const chartOption
 
   return (
-    <Row>
-      <Col span={8}>
+    <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+      <Col span={6}>
         <Recents />
       </Col>
-      <Col span={16}>
+      <Col span={18}>
         <StatisticsNumbers wishLogs={wishLogs} />
         <div className={styles.pullChart} ref={chartRef} />
       </Col>
