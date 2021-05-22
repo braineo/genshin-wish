@@ -11,6 +11,26 @@ const StatisticsNumbers: React.FC<WishStatisticsProps> = props => {
   return (
     <Row>
       <Card>
+        <Statistic
+          title="距上次五星"
+          value={
+            wishLogs.length > 0 && wishLogs[0].Item.rarity !== '5'
+              ? wishLogs[0].pityStar5
+              : 0
+          }
+        />
+      </Card>
+      <Card>
+        <Statistic
+          title="距上次四星"
+          value={
+            wishLogs.length > 0 && wishLogs[0].Item.rarity !== '4'
+              ? wishLogs[0].pityStar4
+              : 0
+          }
+        />
+      </Card>
+      <Card>
         <Statistic title="祈愿数" value={wishLogs.length} />
       </Card>
       <Card>
