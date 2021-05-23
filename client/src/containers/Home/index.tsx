@@ -1,4 +1,4 @@
-import { Card, Col, List, Form, Input, Button } from 'antd';
+import { Col, List, Form, Input, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useAxios } from '../../utils/axios';
@@ -12,6 +12,8 @@ const Home: React.FC = () => {
   const client = useAxios();
   const history = useHistory();
   const [form] = Form.useForm();
+
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -24,12 +26,18 @@ const Home: React.FC = () => {
     fetchUser();
   }, []);
 
-  const handleSubmit = (values: unknown) => {
-    client.post('/log', values);
+  const handleSubmit = async (values: unknown) => {
+    setLoading(true);
+    try {
+      await client.post('/log', values);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Col>
+    <Col span={12} offset={6}>
       <Form form={form} name="wish-url" onFinish={handleSubmit}>
         <Form.Item
           name="query"
@@ -39,13 +47,12 @@ const Home: React.FC = () => {
           <Input name="query" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={loading}>
             查询
           </Button>
         </Form.Item>
       </Form>
       <List
-        grid={{ gutter: 16, column: 4 }}
         dataSource={users}
         renderItem={item => (
           <List.Item
@@ -55,7 +62,7 @@ const Home: React.FC = () => {
               </Button>,
             ]}
           >
-            <Card title={item.id}>{item.name}</Card>
+            <List.Item.Meta title={item.name} description={item.id} />
           </List.Item>
         )}
       />
