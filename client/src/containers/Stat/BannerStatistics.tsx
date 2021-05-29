@@ -36,6 +36,28 @@ const BannerStatistics: React.FC = () => {
     };
   }, []);
 
+  const chartTitles = [
+    {
+      text: '物品分布',
+    },
+    {
+      subtext: '物品稀有度分布',
+      left: '16.67%',
+      top: '75%',
+      textAlign: 'center',
+    },
+    {
+      subtext: '物品类别分布',
+      left: '50%',
+      top: '75%',
+      textAlign: 'center',
+    },
+    {
+      text: '抽卡动态',
+      top: '66.667%',
+    },
+  ];
+
   useEffect(() => {
     if (!chartRef.current || wishLogs.length === 0) {
       return;
@@ -47,22 +69,25 @@ const BannerStatistics: React.FC = () => {
     type Indexable = {
       [key: string]: number;
     };
-    const rarityItemCount: Indexable = { '3': 0, '4': 0, '5': 0 };
+    const rarityItemCount: Indexable = { '5': 0, '4': 0, '3': 0 };
+    const categoryItemCount = {
+      character5Star: 0,
+      weapon5Star: 0,
+      character4Star: 0,
+      weapon4Star: 0,
+    };
 
     chartInstance.setOption({
-      title: {
-        text: '物品分布',
-      },
+      title: chartTitles,
 
       series: [
         {
           type: 'pie',
           radius: [20, 60],
-          left: 'center',
           height: '100%',
-          width: '100%',
+          left: 0,
+          right: '66.6667%',
           label: {
-            alignTo: 'edge',
             formatter: '{name|{b}}\n{time|{c} %}',
             minMargin: 5,
             edgeDistance: 10,
@@ -82,6 +107,49 @@ const BannerStatistics: React.FC = () => {
           ).map(elem => ({
             name: `${elem[0]}星物品`,
             value: Number(((elem[1] / wishLogs.length) * 100).toPrecision(3)),
+          })),
+        },
+
+        {
+          type: 'pie',
+          radius: [20, 60],
+          height: '100%',
+          left: '33.3333%',
+          right: '33.3333%',
+          label: {
+            formatter: '{name|{b}}\n{time|{c}}',
+            minMargin: 5,
+            edgeDistance: 10,
+            lineHeight: 15,
+            rich: {
+              time: {
+                fontSize: 10,
+                color: '#999',
+              },
+            },
+          },
+          data: Object.entries(
+            wishLogs.reduce((prev, current) => {
+              if (current.Item.type === 'weapon') {
+                if (current.Item.rarity === '4') {
+                  prev.weapon4Star += 1;
+                } else if (current.Item.rarity === '5') {
+                  prev.weapon5Star += 1;
+                }
+              } else if (current.Item.type === 'character') {
+                if (current.Item.rarity === '4') {
+                  prev.character4Star += 1;
+                } else if (current.Item.rarity === '5') {
+                  prev.character5Star += 1;
+                }
+              }
+              return prev;
+            }, categoryItemCount),
+          ).map(elem => ({
+            name: `${elem[0].endsWith('4Star') ? '四星' : '五星'}${
+              elem[0].startsWith('character') ? '人物' : '武器'
+            }`,
+            value: elem[1],
           })),
         },
       ],
