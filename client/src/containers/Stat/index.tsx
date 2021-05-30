@@ -16,8 +16,8 @@ type GachaConfig = {
 };
 
 const Stat: React.FC = () => {
-  const { userId, configKey } =
-    useParams<{ userId: string; configKey: string }>();
+  const { userId, gachaType } =
+    useParams<{ userId: string; gachaType: string }>();
   const [gachaConfigs, setGachaConfigs] = useState<GachaConfig[]>([]);
   const history = useHistory();
   const handleTabChange = (key: string) => {
@@ -43,7 +43,7 @@ const Stat: React.FC = () => {
         title={`${userId}`}
         subTitle={`${userId}`}
       />
-      <Tabs onChange={handleTabChange} type="card" activeKey={configKey}>
+      <Tabs onChange={handleTabChange} type="card" activeKey={gachaType}>
         {tabs.map(config => (
           <TabPane tab={config.name} key={config.key}>
             <BannerStatistics />

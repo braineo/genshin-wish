@@ -5,10 +5,9 @@ import RecentItems from './RecentItems';
 import styles from './index.module.less';
 
 const Recents: React.FC = () => {
-  const { userId, configKey } =
-    useParams<{ userId: string; configKey: string }>();
+  const { userId, gachaType } =
+    useParams<{ userId: string; gachaType: string }>();
   const itemConfigs = [
-    { title: '最近记录', rarity: '' },
     { title: '最近五星', rarity: '5' },
     { title: '最近四星', rarity: '4' },
   ];
@@ -20,8 +19,8 @@ const Recents: React.FC = () => {
           title={data.title}
           rarity={data.rarity}
           userId={userId}
-          gachaType={configKey === 'all' ? '' : configKey}
-          size={3}
+          gachaType={gachaType === 'all' ? '' : gachaType}
+          size={5}
         />
       ))}
     </Col>

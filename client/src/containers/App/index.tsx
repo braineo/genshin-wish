@@ -7,7 +7,7 @@ import Home from '../Home';
 function App() {
   return (
     <Switch>
-      <Route path="/stat/:userId/:configKey">
+      <Route path="/stat/:userId/:gachaType">
         <Stat />
       </Route>
       <Route path="/">

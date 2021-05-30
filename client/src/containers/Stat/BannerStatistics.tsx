@@ -15,8 +15,8 @@ const client = axios.create({
 });
 
 const BannerStatistics: React.FC = () => {
-  const { userId, configKey } =
-    useParams<{ userId: string; configKey: string }>();
+  const { userId, gachaType } =
+    useParams<{ userId: string; gachaType: string }>();
   const [wishLogs, setWishLogs] = useState<WishLog[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
   let chartInstance: echarts.ECharts;
@@ -24,7 +24,7 @@ const BannerStatistics: React.FC = () => {
     const fetchLog = async () => {
       const gachaLog = await client.get<{ data: WishLog[] }>(`log/${userId}`, {
         params: {
-          gachaType: configKey === 'all' ? '' : configKey,
+          gachaType: gachaType === 'all' ? '' : gachaType,
         },
       });
       setWishLogs(gachaLog.data.data);
