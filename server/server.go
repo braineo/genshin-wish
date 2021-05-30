@@ -43,9 +43,10 @@ func New() Server {
 	{
 		v1Route.GET("/user", server.GetUsers)
 		v1Route.PUT("/user/", server.UpdateUser)
-
+		// Wish log related
 		v1Route.POST("/log", server.FetchLogs)
 		v1Route.GET("/log/:uid", server.GetLogs)
+		v1Route.GET("/stat/:uid", server.GetStat)
 
 		v1Route.POST("/item", server.FetchGachaItems)
 		v1Route.GET("/item", server.GetGachaItems)
@@ -132,9 +133,9 @@ func (server *Server) FetchLogs(ctx *gin.Context) {
 
 	var query queryInfo
 	if err := ctx.ShouldBind(&query); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 
 	}
 
@@ -264,7 +265,7 @@ func (server *Server) GetLogs(ctx *gin.Context) {
 
 	var logs []WishLog
 	// inner join, Item is struct field not the type
-	db := server.Database.Debug().Joins("Item").Where(
+	db := server.Database.Joins("Item").Where(
 		&WishLog{
 			UserID:    UID,
 			GachaType: gachaType,
@@ -306,6 +307,32 @@ func (server *Server) GetLogs(ctx *gin.Context) {
 			"error": result.Error,
 		})
 	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": logs,
+	})
+}
+
+// GetStat gets statisitcs of wishes, including repeat of items
+func (server *Server) GetStat(ctx *gin.Context) {
+	UID := ctx.Param("uid")
+	gachaType := ctx.Query("gachaType")
+	itemType := ctx.Query("itemType")
+
+	// inner join, Item is struct field not the type
+	db := server.Database.Joins("Item").Where(
+		&WishLog{
+			UserID:    UID,
+			GachaType: gachaType,
+		})
+
+	if itemType != "" {
+		db = db.Where("Item__type = ?", itemType)
+	}
+
+	var logs []ItemCount
+
+	db.Model(&WishLog{}).Select("*, count(item_id) as count").Group("item_id").Find(&logs)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": logs,
 	})

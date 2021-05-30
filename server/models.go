@@ -32,3 +32,10 @@ type GachaItem struct {
 	Type   string `json:"type"`
 	Rarity string `json:"rarity"`
 }
+
+type ItemCount struct {
+	ItemID string `json:"itemId"`
+	Item   GachaItem
+	Count  int
+}
+
