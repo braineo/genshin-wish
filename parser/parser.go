@@ -39,19 +39,23 @@ type GenshinWishParser struct {
 	GachalLogInPool  map[string][]GachaLog
 	StatisticsInPool map[string]GachaStatistics
 	Statistics       GachaStatistics
-	Language         Language
+	Options          ParserOptions
 }
 
-type ParserOptions func(*GenshinWishParser)
+type ParserOptions struct {
+	Language Language
+}
 
-func WithLanguage(l Language) ParserOptions {
-	return func(gwp *GenshinWishParser) {
-		gwp.Language = l
+type ParserOptionFn func(*ParserOptions)
+
+func WithLanguage(l Language) ParserOptionFn {
+	return func(opt *ParserOptions) {
+		opt.Language = l
 	}
 }
 
 // New creates parser from query string
-func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) {
+func New(rawQuery string, options ...ParserOptionFn) (*GenshinWishParser, error) {
 	log.Info(rawQuery)
 
 	u, err := url.Parse(rawQuery)
@@ -68,6 +72,14 @@ func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) 
 		}
 	}
 
+	parserOptions := ParserOptions{
+		Language: ZhCn,
+	}
+
+	for _, opt := range options {
+		opt(&parserOptions)
+	}
+
 	parser := GenshinWishParser{
 		Client:           http.Client{},
 		Query:            query,
@@ -79,11 +91,7 @@ func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) 
 			ItemCount:             make(map[string]int),
 			ShortestStar5Interval: 90,
 		},
-		Language: ZhCn,
-	}
-
-	for _, opt := range options {
-		opt(&parser)
+		Options: parserOptions,
 	}
 
 	return &parser, nil
@@ -123,7 +131,7 @@ func (p *GenshinWishParser) FetchGachaConfigs() error {
 func (p *GenshinWishParser) FetchGachaItems() error {
 	log.Infof("正在获取所有物品信息")
 
-	request, err := http.NewRequest("GET", fmt.Sprintf(itemListURLt, p.Language), nil)
+	request, err := http.NewRequest("GET", fmt.Sprintf(itemListURLt, p.Options.Language), nil)
 	if err != nil {
 		return err
 	}
@@ -147,7 +155,27 @@ func (p *GenshinWishParser) FetchGachaItems() error {
 	return nil
 }
 
-func (p *GenshinWishParser) FetchGachaLog() error {
+type FetchOptions struct {
+	StopAtID string
+}
+
+type FetchOptionsFn func(*FetchOptions)
+
+func StopAtID(id string) FetchOptionsFn {
+	return func(opt *FetchOptions) {
+		opt.StopAtID = id
+	}
+}
+
+func (p *GenshinWishParser) FetchGachaLog(opttions ...FetchOptionsFn) error {
+	opt := FetchOptions{
+		StopAtID: "",
+	}
+
+	for _, option := range opttions {
+		option(&opt)
+	}
+
 	for _, config := range p.Configs {
 		log.Infof("正在获取%s信息", config.Name)
 		gachaLog := make([]GachaLog, 0)
@@ -163,6 +191,15 @@ func (p *GenshinWishParser) FetchGachaLog() error {
 			}
 			endId = pagedGachaLog[len(pagedGachaLog)-1].ID
 			gachaLog = append(gachaLog, pagedGachaLog...)
+
+			if opt.StopAtID != "" {
+				for _, l := range pagedGachaLog {
+					if l.ID == opt.StopAtID {
+						log.Debugf("Stop at ID ")
+						break
+					}
+				}
+			}
 		}
 		p.GachalLogInPool[config.Key] = gachaLog
 	}
@@ -205,8 +242,8 @@ func (p *GenshinWishParser) prepareRequestParams(request *http.Request) url.Valu
 	for _, name := range requiredQueryFields {
 		query.Set(name, p.Query[name][0])
 	}
-	if p.Language != "" {
-		query.Set("lang", string(p.Language))
+	if p.Options.Language != "" {
+		query.Set("lang", string(p.Options.Language))
 	}
 	return query
 
