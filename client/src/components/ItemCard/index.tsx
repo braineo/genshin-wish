@@ -34,7 +34,7 @@ const ItemName: React.FC<{ itemInfo: Character | Weapon | null }> = props => {
     return <span></span>;
   }
   return (
-    <span
+    <div
       className={classNames(
         styles.name,
         isCharacter(itemInfo)
@@ -43,7 +43,7 @@ const ItemName: React.FC<{ itemInfo: Character | Weapon | null }> = props => {
       )}
     >{`${itemInfo.name}(${
       isCharacter(itemInfo) ? itemInfo.element : itemInfo.weapontype
-    })`}</span>
+    })`}</div>
   );
 };
 
@@ -82,12 +82,14 @@ const ItemCard: React.FC<ItemCardProps> = props => {
     <li className={styles.item}>
       <Avatar />
       <ItemName itemInfo={itemInfo} />
-      <span>{dateTimeFormatter.format(new Date(props.time))}</span>
+      <div className={styles.datetime}>
+        {dateTimeFormatter.format(new Date(props.time))}
+      </div>
       {props.rarity === '4' ? (
-        <span className={styles.pity}>{props.pityStar4}</span>
+        <div className={styles.pity}>{props.pityStar4}</div>
       ) : null}
       {props.rarity === '5' ? (
-        <span className={styles.pity}>{props.pityStar5}</span>
+        <div className={styles.pity}>{props.pityStar5}</div>
       ) : null}
     </li>
   );
