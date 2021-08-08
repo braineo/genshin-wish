@@ -155,55 +155,45 @@ func (p *GenshinWishParser) FetchGachaItems() error {
 	return nil
 }
 
-type FetchOptions struct {
-	StopAtID string
-}
-
-type FetchOptionsFn func(*FetchOptions)
-
-func StopAtID(id string) FetchOptionsFn {
-	return func(opt *FetchOptions) {
-		opt.StopAtID = id
-	}
-}
-
-func (p *GenshinWishParser) FetchGachaLog(opttions ...FetchOptionsFn) error {
-	opt := FetchOptions{
-		StopAtID: "",
-	}
-
-	for _, option := range opttions {
-		option(&opt)
-	}
-
+// FetchGachaLog downlaods all logs from all banners
+func (p *GenshinWishParser) FetchGachaLog() error {
 	for _, config := range p.Configs {
-		log.Infof("正在获取%s信息", config.Name)
-		gachaLog := make([]GachaLog, 0)
-		endId := "0"
-		for pageNumber := 1; ; pageNumber++ {
-			pagedGachaLog, err := p.fetchGachaLog(pageNumber, config.Key, endId)
-			if err != nil {
-				log.Debugf("无法读取%s页信息,错误%s", pageNumber, err)
-				return err
-			}
-			if len(pagedGachaLog) == 0 {
-				break
-			}
-			endId = pagedGachaLog[len(pagedGachaLog)-1].ID
-			gachaLog = append(gachaLog, pagedGachaLog...)
-
-			if opt.StopAtID != "" {
-				for _, l := range pagedGachaLog {
-					if l.ID == opt.StopAtID {
-						log.Debugf("Stop at ID ")
-						break
-					}
-				}
-			}
+		gachaLog, err := p.FetchBannerGachaLog(config, "")
+		if err != nil {
+			return err
 		}
 		p.GachalLogInPool[config.Key] = gachaLog
 	}
 	return nil
+}
+
+// FetchBannerGachaLog fetchs log in specified banner, if stopAtId is not empty, fetch stops at it
+func (p *GenshinWishParser) FetchBannerGachaLog(gachaConfig GachaConfig, stopAtId string) ([]GachaLog, error) {
+	log.Infof("正在获取%s信息", gachaConfig.Name)
+	gachaLog := make([]GachaLog, 0)
+	endId := "0"
+	for pageNumber := 1; ; pageNumber++ {
+		pagedGachaLog, err := p.fetchGachaLog(pageNumber, gachaConfig.Key, endId)
+		if err != nil {
+			log.Debugf("无法读取%s页信息,错误%s", pageNumber, err)
+			return nil, err
+		}
+		if len(pagedGachaLog) == 0 {
+			break
+		}
+		endId = pagedGachaLog[len(pagedGachaLog)-1].ID
+		gachaLog = append(gachaLog, pagedGachaLog...)
+
+		if stopAtId != "" {
+			for _, l := range pagedGachaLog {
+				if l.ID == stopAtId {
+					log.Debugf("Stop at ID %v", stopAtId)
+					break
+				}
+			}
+		}
+	}
+	return gachaLog, nil
 }
 
 func (p *GenshinWishParser) fetchGachaLog(pageNumber int, gachaType string, endID string) ([]GachaLog, error) {
@@ -247,4 +237,15 @@ func (p *GenshinWishParser) prepareRequestParams(request *http.Request) url.Valu
 	}
 	return query
 
+}
+
+func (p *GenshinWishParser) GetUserID() (string, error) {
+	log.Debug("Getting user id")
+	// use 200 to avoid passing in a gacha config key, usually should have log
+	pagedGachaLogs, err := p.fetchGachaLog(0, "200", "")
+	if err != nil || len(pagedGachaLogs) == 0 {
+		log.Debugf("Cannot get user id, %s", err)
+		return "", err
+	}
+	return pagedGachaLogs[0].UID, nil
 }

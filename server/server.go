@@ -149,19 +149,40 @@ func (server *Server) FetchLogs(ctx *gin.Context) {
 	server.Database.Find(&configs)
 
 	if len(configs) == 0 {
-		p.Language = parser.ZhCn
+		// temporarry change language
+		p.Options.Language = parser.ZhCn
 		if err = p.FetchGachaConfigs(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": err,
 			})
 		}
-		p.Language = parser.EnUs
-		// TODO insert new gacha configs
+		p.Options.Language = parser.EnUs
+
 		for _, config := range p.Configs {
 			server.Database.FirstOrCreate(&config)
 		}
 	} else {
 		p.Configs = configs
+	}
+	server.Database.Find(&configs)
+
+	userID, err := p.GetUserID()
+	if err != nil {
+		log.Debug("Cannot find UID, maybe no record in remote server")
+	}
+	for _, config := range configs {
+
+		var wishLog WishLog
+		stopAtID := ""
+		if userID != "" {
+			server.Database.Where("user_id = ? AND gacha_type = ?", userID, config.Key).Limit(1).Order("id desc").Find(&wishLog)
+			if wishLog.ID != "" {
+				stopAtID = wishLog.ID
+				log.Infof("Fonud past wishes, last recorded wish is %s", wishLog.ID)
+			}
+		}
+
+		p.FetchBannerGachaLog(config, stopAtID)
 	}
 
 	if err := p.FetchGachaLog(); err != nil {
