@@ -4,14 +4,6 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import './index.less';
 import App from './containers/App';
 import reportWebVitals from './reportWebVitals';
-import { setOptions } from 'genshin-db';
-setOptions({
-  matchAliases: false,
-  matchCategories: false,
-  verboseCategories: false,
-  queryLanguages: ['English'],
-  resultLanguage: 'CHS',
-});
 
 ReactDOM.render(
   <React.StrictMode>

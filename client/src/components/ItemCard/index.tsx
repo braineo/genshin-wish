@@ -1,9 +1,23 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Character, character, weapon, Weapon } from 'genshin-db';
+import {
+  Character,
+  characters,
+  weapons,
+  Weapon,
+  QueryOptions,
+} from 'genshin-db';
 import styles from './index.module.less';
 import RarityIndicator from '../RarityIndicator';
 import { toEnElement } from '../../utils';
+
+const queryOption = {
+  matchAliases: false,
+  matchCategories: false,
+  verboseCategories: false,
+  queryLanguages: ['English'],
+  resultLanguage: 'CHS',
+};
 
 type ItemCardProps = {
   itemId: string;
@@ -48,11 +62,11 @@ const ItemName: React.FC<{ itemInfo: Character | Weapon | null }> = props => {
 };
 
 const ItemCard: React.FC<ItemCardProps> = props => {
-  let itemInfo: Character | Weapon | null;
+  let itemInfo: Character | Weapon | undefined;
   if (props.itemType === 'character') {
-    itemInfo = character(props.itemId);
+    itemInfo = characters(props.itemId, queryOption as unknown as QueryOptions);
   } else {
-    itemInfo = weapon(props.itemId);
+    itemInfo = weapons(props.itemId, queryOption as unknown as QueryOptions);
   }
   if (!itemInfo) {
     return <div />;
