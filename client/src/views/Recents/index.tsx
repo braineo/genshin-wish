@@ -1,8 +1,8 @@
-import React from 'react';
 import { Col } from 'antd';
+import React from 'react';
 import { useParams } from 'react-router';
-import RecentItems from './RecentItems';
 import styles from './index.module.less';
+import RecentItems from './RecentItems';
 
 const Recents: React.FC = () => {
   const { userId, gachaType } =

@@ -1,15 +1,15 @@
-import React from 'react';
 import classNames from 'classnames';
 import {
   Character,
+  QueryOptions,
+  Weapon,
   characters,
   weapons,
-  Weapon,
-  QueryOptions,
 } from 'genshin-db';
-import styles from './index.module.less';
-import RarityIndicator from '../RarityIndicator';
+import React from 'react';
 import { toEnElement } from '../../utils';
+import RarityIndicator from '../RarityIndicator';
+import styles from './index.module.less';
 
 const queryOption = {
   matchAliases: false,

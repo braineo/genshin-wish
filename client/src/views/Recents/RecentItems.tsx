@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useAxios } from '../../utils/axios';
 import { WishLog } from 'genshin-wish';
+import React, { useEffect, useState } from 'react';
 import ItemList from '../../components/ItemList';
+import { useAxios } from '../../utils/axios';
 import styles from './index.module.less';
 
 type RecentItemsProps = {
