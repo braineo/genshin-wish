@@ -11,7 +11,7 @@ function App() {
       <Route path="/stat/:userId/:gachaType">
         <Stat />
       </Route>
-      <Route path="/list/:userId/:gachaType">
+      <Route path="/list/:userId/">
         <WishItemList />
       </Route>
       <Route path="/">

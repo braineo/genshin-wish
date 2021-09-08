@@ -13,20 +13,12 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Avatar } from '../../components/ItemCard';
 
-const columns = [
-  {
-    title: '',
-    dataIndex: ['Item'],
-    render: (value: Character | Weapon) => (
-      <Avatar itemInfo={value} rarity={value.rarity} />
-    ),
-  },
-  { title: '物品名', dataIndex: ['Item', 'name'] },
-  { title: '分类', dataIndex: ['Item', 'type'] },
-  { title: '稀有度', dataIndex: ['Item', 'rarity'] },
-  { title: '抽数', dataIndex: 'pityStar5' },
-  { title: '日期', dataIndex: 'time' },
-];
+type GachaItem = Character | Weapon;
+
+type GachaConfig = {
+  name: string;
+  key: string;
+};
 
 const queryOption = {
   matchAliases: false,
@@ -42,6 +34,8 @@ const client = axios.create({
 
 export const WishItemList = () => {
   const [wishLogs, setWishLogs] = useState<WishLog[]>([]);
+  const [gachaConfigs, setGachaConfigs] = useState<GachaConfig[]>([]);
+
   const { userId, gachaType } =
     useParams<{ userId: string; gachaType: string }>();
 
@@ -55,7 +49,74 @@ export const WishItemList = () => {
       setWishLogs(gachaLog.data.data);
     };
     fetchLog();
+
+    const fetchConfigs = async () => {
+      const gachaLog = await client.get<{ data: GachaConfig[] }>('gacha');
+      setGachaConfigs(gachaLog.data.data);
+    };
+    fetchConfigs();
   }, []);
+
+  const columns = [
+    {
+      title: '卡池',
+      filters: gachaConfigs.map(config => ({
+        text: config.name,
+        value: config.key,
+      })),
+      onFilter: (value: string | number | boolean, record: WishLog) =>
+        record.gachaType === value,
+      render: (value: WishLog) => {
+        const config = gachaConfigs.find(
+          config => config.key === value.gachaType,
+        );
+        if (config) {
+          return config.name;
+        }
+      },
+    },
+    {
+      title: '',
+      dataIndex: ['Item'],
+      render: (value: GachaItem) => (
+        <Avatar itemInfo={value} rarity={value.rarity} />
+      ),
+    },
+    { title: '物品名', dataIndex: ['Item', 'name'] },
+    {
+      title: '分类',
+      dataIndex: ['Item', 'type'],
+      filters: [
+        { text: '角色', value: 'character' },
+        { text: '武器', value: 'weapon' },
+      ],
+      onFilter: (value: string | number | boolean, record: WishLog) =>
+        record.Item.type === value,
+      render: (value: string) => (value === 'character' ? '角色' : '武器'),
+    },
+    {
+      title: '稀有度',
+      dataIndex: ['Item', 'rarity'],
+      filters: [
+        { text: '五星', value: '5' },
+        { text: '四星', value: '4' },
+        { text: '三星', value: '3' },
+      ],
+      onFilter: (value: string | number | boolean, record: WishLog) =>
+        record.Item.rarity === value,
+    },
+    {
+      title: '抽数',
+      render: (value: WishLog) => {
+        if (value.Item.rarity === '4') {
+          return value.pityStar4;
+        } else if (value.Item.rarity === '5') {
+          return value.pityStar5;
+        }
+      },
+    },
+    { title: '日期', dataIndex: 'time' },
+  ];
 
   return (
     <Table
@@ -63,6 +124,7 @@ export const WishItemList = () => {
       dataSource={wishLogs.map(wishLog => {
         if (wishLog.Item.type === 'character') {
           return {
+            key: wishLog.id,
             ...wishLog,
             Item: {
               ...wishLog.Item,
@@ -71,6 +133,7 @@ export const WishItemList = () => {
           };
         } else {
           return {
+            key: wishLog.id,
             ...wishLog,
             Item: {
               ...wishLog.Item,
