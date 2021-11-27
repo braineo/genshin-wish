@@ -1,6 +1,6 @@
-import React from 'react';
+import { Card, Row, Statistic } from 'antd';
 import { WishLog } from 'genshin-wish';
-import { Row, Statistic, Card } from 'antd';
+
 type WishStatisticsProps = {
   wishLogs: WishLog[];
 };

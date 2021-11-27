@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import './index.less';
-import App from './containers/App';
 import reportWebVitals from './reportWebVitals';
+import App from './views/App';
 
 ReactDOM.render(
   <React.StrictMode>

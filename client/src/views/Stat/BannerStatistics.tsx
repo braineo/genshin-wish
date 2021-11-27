@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Row, Col } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Col, Row } from 'antd';
 import axios from 'axios';
 import * as echarts from 'echarts';
 import 'echarts/lib/chart/line';
 import 'echarts/lib/chart/bar';
-import styles from './index.module.less';
 import { WishLog } from 'genshin-wish';
-import StatisticsNumbers from './StatisticsNumbers';
-import Recents from '../Recents';
 import { useParams } from 'react-router';
+import Recents from '../Recents';
+import styles from './index.module.less';
+import StatisticsNumbers from './StatisticsNumbers';
 
 const client = axios.create({
   baseURL: '/api/v1',

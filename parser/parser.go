@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/op/go-logging"
 )
@@ -163,7 +164,9 @@ func (p *GenshinWishParser) FetchGachaLog() error {
 			}
 			endId = pagedGachaLog[len(pagedGachaLog)-1].ID
 			gachaLog = append(gachaLog, pagedGachaLog...)
+			time.Sleep(1 * time.Second)
 		}
+		log.Debugf("Fetched %v items", len(gachaLog))
 		p.GachalLogInPool[config.Key] = gachaLog
 	}
 	return nil

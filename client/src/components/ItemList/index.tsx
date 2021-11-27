@@ -1,6 +1,6 @@
+import { WishLog } from 'genshin-wish';
 import React from 'react';
 import ItemCard from '../ItemCard';
-import { WishLog } from 'genshin-wish';
 import styles from './index.module.less';
 
 type ItemListProps = {

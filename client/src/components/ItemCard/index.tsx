@@ -1,15 +1,15 @@
-import React from 'react';
 import classNames from 'classnames';
 import {
   Character,
+  QueryOptions,
+  Weapon,
   characters,
   weapons,
-  Weapon,
-  QueryOptions,
 } from 'genshin-db';
-import styles from './index.module.less';
-import RarityIndicator from '../RarityIndicator';
+import React from 'react';
 import { toEnElement } from '../../utils';
+import RarityIndicator from '../RarityIndicator';
+import styles from './index.module.less';
 
 const queryOption = {
   matchAliases: false,
@@ -17,15 +17,6 @@ const queryOption = {
   verboseCategories: false,
   queryLanguages: ['English'],
   resultLanguage: 'CHS',
-};
-
-type ItemCardProps = {
-  itemId: string;
-  pityStar4: number;
-  pityStar5: number;
-  time: string;
-  itemType: 'weapon' | 'character';
-  rarity: string;
 };
 
 const isCharacter = (item: Character | Weapon): item is Character => {
@@ -61,6 +52,39 @@ const ItemName: React.FC<{ itemInfo: Character | Weapon | null }> = props => {
   );
 };
 
+interface AvatarProps {
+  itemInfo: Character | Weapon;
+  rarity: string;
+}
+export const Avatar = (props: AvatarProps) => {
+  return (
+    <div className={styles.avatar}>
+      <span
+        className={classNames(
+          styles.iconWrapper,
+          styles[`star${props.rarity}Bg`],
+        )}
+      >
+        <img
+          className={styles.icon}
+          src={props.itemInfo?.images.icon}
+          alt="item-icon"
+        />
+      </span>
+      <RarityIndicator rarity={parseInt(props.rarity)} />
+    </div>
+  );
+};
+
+interface ItemCardProps {
+  itemId: string;
+  pityStar4: number;
+  pityStar5: number;
+  time: string;
+  itemType: 'weapon' | 'character';
+  rarity: string;
+}
+
 const ItemCard: React.FC<ItemCardProps> = props => {
   let itemInfo: Character | Weapon | undefined;
   if (props.itemType === 'character') {
@@ -72,29 +96,9 @@ const ItemCard: React.FC<ItemCardProps> = props => {
     return <div />;
   }
 
-  const Avatar: React.FC = () => {
-    return (
-      <div className={styles.avatar}>
-        <span
-          className={classNames(
-            styles.iconWrapper,
-            styles[`star${props.rarity}Bg`],
-          )}
-        >
-          <img
-            className={styles.icon}
-            src={itemInfo?.images.icon}
-            alt="item-icon"
-          />
-        </span>
-        <RarityIndicator rarity={parseInt(props.rarity)} />
-      </div>
-    );
-  };
-
   return (
     <li className={styles.item}>
-      <Avatar />
+      <Avatar itemInfo={itemInfo} rarity={props.rarity} />
       <ItemName itemInfo={itemInfo} />
       <div className={styles.datetime}>
         {dateTimeFormatter.format(new Date(props.time))}

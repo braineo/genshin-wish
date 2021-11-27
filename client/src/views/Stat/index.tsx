@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Tabs, PageHeader } from 'antd';
+import { PageHeader, Tabs } from 'antd';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import BannerStatistics from './BannerStatistics';
 
