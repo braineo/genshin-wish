@@ -28,12 +28,11 @@ func ExportGachaLog(p *parser.GenshinWishParser, filePath string) error {
 	}
 
 	writer := csv.NewWriter(file)
-	writer.Write([]string{"UID", "物品ID", "物品名", "稀有度", "卡池", "抽卡时间"})
+	writer.Write([]string{"UID", "物品名", "稀有度", "卡池", "抽卡时间"})
 	for _, gachaConfig := range p.Configs {
 		gachaLogs := p.GachalLogInPool[gachaConfig.Key]
 		for _, gachaLog := range gachaLogs {
-			itemInfo := p.ItemTable[gachaLog.ItemID]
-			writer.Write([]string{gachaLog.UID, itemInfo.ID, itemInfo.Name, itemInfo.RankType, gachaConfig.Name, gachaLog.Time})
+			writer.Write([]string{gachaLog.UID, gachaLog.Name, gachaLog.RankType, gachaConfig.Name, gachaLog.Time})
 		}
 	}
 
