@@ -24,7 +24,13 @@ const BannerStatistics: React.FC = () => {
     const fetchLog = async () => {
       const gachaLog = await client.get<{ data: WishLog[] }>(`log/${userId}`, {
         params: {
-          gachaType: gachaType === 'all' ? '' : gachaType,
+          // FIXME: handle mix gacha pool
+          gachaType:
+            gachaType === 'all'
+              ? ''
+              : gachaType === '301'
+              ? '301+400'
+              : gachaType,
         },
       });
       setWishLogs(gachaLog.data.data);
