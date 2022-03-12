@@ -262,13 +262,11 @@ func (server *Server) GetLogs(ctx *gin.Context) {
 	sortOrder := ctx.Query("sort")
 
 	// cursor := ctx.Query("cursor")
-
 	var logs []WishLog
 	// inner join, Item is struct field not the type
 	db := server.Database.Joins("Item").Where(
 		&WishLog{
-			UserID:    UID,
-			GachaType: gachaType,
+			UserID: UID,
 		})
 	querySplitFn := func(c rune) bool {
 		return c == '+'
@@ -278,6 +276,13 @@ func (server *Server) GetLogs(ctx *gin.Context) {
 		db = db.Where("item__rarity = ?", rarities[0])
 	} else if len(rarities) > 1 {
 		db = db.Where("item__rarity in (?)", rarities)
+	}
+
+	gachaTypes := strings.FieldsFunc(gachaType, querySplitFn)
+	if len(gachaTypes) == 1 {
+		db = db.Where("gacha_type = ?", gachaTypes[0])
+	} else if len(gachaTypes) > 1 {
+		db = db.Where("gacha_type in (?)", gachaTypes)
 	}
 
 	if size != "" {
