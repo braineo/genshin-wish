@@ -164,7 +164,7 @@ func (server *Server) FetchLogs(ctx *gin.Context) {
 		p.Configs = configs
 	}
 
-	if err := p.FetchGachaLog(); err != nil {
+	if err := p.FetchAllGachaLog(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
 		})
