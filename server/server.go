@@ -128,28 +128,23 @@ func (server *Server) FetchLogs(ctx *gin.Context) {
 		).Last(&lastWish); err != nil {
 			log.Debugf("found last record 5 star pity %d, ID %s", lastWish.PityStar5, lastWish.ID)
 			endId = lastWish.ID
-			ctx.JSON(http.StatusOK, gin.H{
-				"wish": lastWish,
-			})
-			return
 		}
 
 		if gachaLogs, err := p.FetchGachaLog(gachaType, endId); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": err,
 			})
-
-			if err := server.createWishLogs(gachaLogs, gachaType); err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"error": err,
-				})
-			}
+		} else if err := server.createWishLogs(gachaLogs, queryGachaTypes); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": err,
+			})
 		}
 	}
 }
 
-func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog, gachaType string) error {
+func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog, gachaTypes []string) error {
 	if len(*gachaLogs) == 0 {
+		log.Info("gacha log is empty, skip")
 		return nil
 	}
 
@@ -165,14 +160,11 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog, gachaType str
 
 	// determine range of new values
 	if err := server.Database.Where(
-		map[string]interface{}{"gacha_type": gachaType, "user_id": UID},
+		map[string]interface{}{"gacha_type": gachaTypes, "user_id": UID},
 	).Last(&lastWish); err != nil {
-		log.Debug("no record found, use all logs")
-		endIndex = len(*gachaLogs) - 1
-	} else {
 		log.Debugf("last saved wish ID %s", lastWish.ID)
-		pityStar4 = lastWish.PityStar4
-		pityStar5 = lastWish.PityStar5
+		pityStar4 = lastWish.PityStar4 + 1
+		pityStar5 = lastWish.PityStar5 + 1
 
 		for _, gachaLog := range *gachaLogs {
 			if gachaLog.ID == lastWish.ID {
@@ -180,6 +172,10 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog, gachaType str
 			}
 			endIndex++
 		}
+
+	} else {
+		log.Debug("no record found, use all logs")
+		endIndex = len(*gachaLogs) - 1
 	}
 	reg, _ := regexp.Compile("[^a-zA-Z]+")
 	// gacha log parsed in time desc order, process from backwards

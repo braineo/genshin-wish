@@ -56,7 +56,6 @@ func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) 
 	log.Info(rawQuery)
 
 	u, err := url.Parse(rawQuery)
-
 	if err != nil {
 		return nil, err
 	}
@@ -259,5 +258,4 @@ func (p *GenshinWishParser) prepareRequestParams(request *http.Request) url.Valu
 		query.Set("lang", string(p.Language))
 	}
 	return query
-
 }
