@@ -90,6 +90,18 @@ func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) 
 	return &parser, nil
 }
 
+// GetUserID get use ID from a request
+func (p *GenshinWishParser) GetUserID() (string, error) {
+	pagedGachaLog, err := p.fetchGachaLog(1, "200", "0")
+	if err != nil {
+		return "", err
+	}
+	if len(pagedGachaLog) > 0 {
+		return pagedGachaLog[0].UID, nil
+	}
+	return "", nil
+}
+
 // Fetch all gacha pools. Seems deprecated by MiHoYo
 func (p *GenshinWishParser) FetchGachaConfigs() error {
 	log.Infof("正在获取所有卡池列表")
@@ -150,7 +162,6 @@ func (p *GenshinWishParser) FetchGachaItems() error {
 	return nil
 }
 
-// TODO: add stopAt and config, do not loop configs here
 func (p *GenshinWishParser) FetchAllGachaLog() error {
 	for _, config := range p.Configs {
 		log.Infof("正在获取%s信息", config.Name)
@@ -175,7 +186,7 @@ func (p *GenshinWishParser) FetchAllGachaLog() error {
 	return nil
 }
 
-func (p *GenshinWishParser) FetchGachaLog(gachaType string, stopAtId string) error {
+func (p *GenshinWishParser) FetchGachaLog(gachaType string, stopAtId string) (*[]GachaLog, error) {
 	gachaLog := make([]GachaLog, 0)
 	endId := "0"
 	shouldStop := false
@@ -183,7 +194,7 @@ func (p *GenshinWishParser) FetchGachaLog(gachaType string, stopAtId string) err
 		pagedGachaLog, err := p.fetchGachaLog(pageNumber, gachaType, endId)
 		if err != nil {
 			log.Debugf("无法读取%s页信息,错误%s", pageNumber, err)
-			return err
+			return nil, err
 		}
 		if len(pagedGachaLog) == 0 {
 			break
@@ -203,8 +214,8 @@ func (p *GenshinWishParser) FetchGachaLog(gachaType string, stopAtId string) err
 		}
 	}
 	log.Debugf("Fetched %v items", len(gachaLog))
-	p.GachalLogInPool[gachaType] = gachaLog
-	return nil
+
+	return &gachaLog, nil
 }
 
 // Fetches gacha log per page
