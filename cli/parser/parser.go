@@ -62,7 +62,7 @@ func main() {
 	}
 	log.Debug(parser.Configs)
 
-	err = parser.FetchGachaLog()
+	err = parser.FetchAllGachaLog()
 	if err != nil {
 		panic(err)
 	}

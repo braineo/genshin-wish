@@ -56,7 +56,6 @@ func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) 
 	log.Info(rawQuery)
 
 	u, err := url.Parse(rawQuery)
-
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +89,19 @@ func New(rawQuery string, options ...ParserOptions) (*GenshinWishParser, error) 
 	return &parser, nil
 }
 
+// GetUserID get use ID from a request
+func (p *GenshinWishParser) GetUserID() (string, error) {
+	pagedGachaLog, err := p.fetchGachaLog(1, "200", "0")
+	if err != nil {
+		return "", err
+	}
+	if len(pagedGachaLog) > 0 {
+		return pagedGachaLog[0].UID, nil
+	}
+	return "", nil
+}
+
+// Fetch all gacha pools. Seems deprecated by MiHoYo
 func (p *GenshinWishParser) FetchGachaConfigs() error {
 	log.Infof("正在获取所有卡池列表")
 
@@ -121,6 +133,7 @@ func (p *GenshinWishParser) FetchGachaConfigs() error {
 	return nil
 }
 
+// Fetch all avaialble gacha items. Seems deprecated by MiHoYo
 func (p *GenshinWishParser) FetchGachaItems() error {
 	log.Infof("正在获取所有物品信息")
 
@@ -148,7 +161,7 @@ func (p *GenshinWishParser) FetchGachaItems() error {
 	return nil
 }
 
-func (p *GenshinWishParser) FetchGachaLog() error {
+func (p *GenshinWishParser) FetchAllGachaLog() error {
 	for _, config := range p.Configs {
 		log.Infof("正在获取%s信息", config.Name)
 		gachaLog := make([]GachaLog, 0)
@@ -172,6 +185,39 @@ func (p *GenshinWishParser) FetchGachaLog() error {
 	return nil
 }
 
+func (p *GenshinWishParser) FetchGachaLog(gachaType string, stopAtId string) (*[]GachaLog, error) {
+	gachaLog := make([]GachaLog, 0)
+	endId := "0"
+	shouldStop := false
+	for pageNumber := 1; ; pageNumber++ {
+		pagedGachaLog, err := p.fetchGachaLog(pageNumber, gachaType, endId)
+		if err != nil {
+			log.Debugf("无法读取%s页信息,错误%s", pageNumber, err)
+			return nil, err
+		}
+		if len(pagedGachaLog) == 0 {
+			break
+		}
+		endId = pagedGachaLog[len(pagedGachaLog)-1].ID
+		gachaLog = append(gachaLog, pagedGachaLog...)
+		time.Sleep(1 * time.Second)
+
+		for _, gachaLog := range pagedGachaLog {
+			if gachaLog.ID == stopAtId {
+				shouldStop = true
+				break
+			}
+		}
+		if shouldStop {
+			break
+		}
+	}
+	log.Debugf("Fetched %v items", len(gachaLog))
+
+	return &gachaLog, nil
+}
+
+// Fetches gacha log per page
 func (p *GenshinWishParser) fetchGachaLog(pageNumber int, gachaType string, endID string) ([]GachaLog, error) {
 	request, err := http.NewRequest("GET", gachaLogURL, nil)
 	if err != nil {
@@ -212,5 +258,4 @@ func (p *GenshinWishParser) prepareRequestParams(request *http.Request) url.Valu
 		query.Set("lang", string(p.Language))
 	}
 	return query
-
 }

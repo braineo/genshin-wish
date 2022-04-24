@@ -19,7 +19,14 @@ const Recents: React.FC = () => {
           title={data.title}
           rarity={data.rarity}
           userId={userId}
-          gachaType={gachaType === 'all' ? '' : gachaType}
+          // FIXME: handle mix gacha pool
+          gachaType={
+            gachaType === 'all'
+              ? ''
+              : gachaType === '301'
+              ? '301+400'
+              : gachaType
+          }
           size={5}
         />
       ))}
