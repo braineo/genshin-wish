@@ -14,13 +14,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func handleCors() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		ctx.Writer.Header().Add("Access-Control-Allow-Origin", "*")
-		ctx.Next()
-	}
-}
-
 var log = logging.MustGetLogger("server")
 
 type Server struct {
@@ -29,14 +22,12 @@ type Server struct {
 }
 
 func New() Server {
-
 	engine := gin.Default()
 	db := InitDB()
 	server := Server{
 		Engine:   engine,
 		Database: db,
 	}
-	// engine.Use(handleCors())
 
 	v1Route := engine.Group("api/v1")
 
@@ -48,10 +39,6 @@ func New() Server {
 		v1Route.GET("/log/:uid", server.GetLogs)
 		v1Route.GET("/stat/:uid", server.GetStat)
 
-		v1Route.POST("/item", server.FetchGachaItems)
-		v1Route.GET("/item", server.GetGachaItems)
-
-		v1Route.POST("/gacha", server.FetchGachaConfigs)
 		v1Route.GET("/gacha", server.GetGachaConfigs)
 
 	}
@@ -59,12 +46,10 @@ func New() Server {
 }
 
 func (server *Server) Run() {
-
 	server.Engine.Run(":8080")
 }
 
 func (server *Server) GetUsers(ctx *gin.Context) {
-
 	var users []User
 	server.Database.Model(&User{}).Find(&users)
 
@@ -94,28 +79,6 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 	}
 }
 
-func (server *Server) FetchGachaItems(ctx *gin.Context) {
-	rawQuery := ctx.PostForm("query")
-	p, err := parser.New(rawQuery, parser.WithLanguage(parser.EnUs))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-	}
-	p.FetchGachaItems()
-	for _, item := range p.ItemTable {
-		server.Database.FirstOrCreate(item)
-	}
-}
-
-func (server *Server) GetGachaItems(ctx *gin.Context) {
-
-}
-
-func (server *Server) FetchGachaConfigs(ctx *gin.Context) {
-
-}
-
 func (server *Server) GetGachaConfigs(ctx *gin.Context) {
 	var configs []parser.GachaConfig
 	server.Database.Model(&parser.GachaConfig{}).Find(&configs)
@@ -130,13 +93,11 @@ type queryInfo struct {
 
 // FetchLogs accept query URL for gacha log to query game server
 func (server *Server) FetchLogs(ctx *gin.Context) {
-
 	var query queryInfo
 	if err := ctx.ShouldBind(&query); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-
 	}
 
 	p, err := parser.New(query.Query, parser.WithLanguage(parser.EnUs))
@@ -145,41 +106,49 @@ func (server *Server) FetchLogs(ctx *gin.Context) {
 			"error": err,
 		})
 	}
-	var configs []parser.GachaConfig
-	server.Database.Find(&configs)
 
-	if len(configs) == 0 {
-		p.Language = parser.ZhCn
-		if err = p.FetchGachaConfigs(); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err,
-			})
-		}
-		p.Language = parser.EnUs
-		// TODO insert new gacha configs
-		for _, config := range p.Configs {
-			server.Database.FirstOrCreate(&config)
-		}
-	} else {
-		p.Configs = configs
-	}
-
-	if err := p.FetchAllGachaLog(); err != nil {
+	userID, err := p.GetUserID()
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
 		})
 	}
+	// all types of gachas. need to specify manually, , 301(角色, with 400),
+	gachaTypes := map[string][]string{
+		"200": {"200"},        // 200(奔行)
+		"301": {"301", "400"}, // 301(角色) 400(角色2)
+		"302": {"302"},        // 302(武器)
+	}
 
-	for _, gachaLogs := range p.GachalLogInPool {
-		if err := server.createWishLogs(&gachaLogs); err != nil {
+	for gachaType, queryGachaTypes := range gachaTypes {
+		endId := ""
+		var lastWish WishLog
+		if err := server.Database.Where(
+			map[string]interface{}{"gacha_type": queryGachaTypes, "user_id": userID},
+		).Last(&lastWish); err != nil {
+			log.Debugf("found last record 5 star pity %d, ID %s", lastWish.PityStar5, lastWish.ID)
+			endId = lastWish.ID
+			ctx.JSON(http.StatusOK, gin.H{
+				"wish": lastWish,
+			})
+			return
+		}
+
+		if gachaLogs, err := p.FetchGachaLog(gachaType, endId); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": err,
 			})
+
+			if err := server.createWishLogs(gachaLogs, gachaType); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"error": err,
+				})
+			}
 		}
 	}
 }
 
-func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
+func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog, gachaType string) error {
 	if len(*gachaLogs) == 0 {
 		return nil
 	}
@@ -188,7 +157,6 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
 	timezone, _ := time.LoadLocation("Asia/Shanghai")
 
 	UID := (*gachaLogs)[0].UID
-	gachaConfigKey := (*gachaLogs)[0].GachaType
 	var lastWish WishLog
 
 	endIndex := -1
@@ -197,7 +165,7 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
 
 	// determine range of new values
 	if err := server.Database.Where(
-		map[string]interface{}{"gacha_type": gachaConfigKey, "user_id": UID},
+		map[string]interface{}{"gacha_type": gachaType, "user_id": UID},
 	).Last(&lastWish); err != nil {
 		log.Debug("no record found, use all logs")
 		endIndex = len(*gachaLogs) - 1
@@ -210,7 +178,7 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
 			if gachaLog.ID == lastWish.ID {
 				break
 			}
-			endIndex += 1
+			endIndex++
 		}
 	}
 	reg, _ := regexp.Compile("[^a-zA-Z]+")
@@ -237,13 +205,13 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog) error {
 		})
 		// According to study nga bbs. Pity count for 4 star and 5 star items are separated. i.e. this situation can happen 9 3-star items, follows 1 5-star item, then a 4-star item
 		if gachaLog.RankType != "5" {
-			pityStar5 += 1
+			pityStar5++
 		} else {
 			pityStar5 = 1
 		}
 
 		if gachaLog.RankType != "4" {
-			pityStar4 += 1
+			pityStar4++
 		} else {
 			pityStar4 = 1
 		}
@@ -261,7 +229,6 @@ func (server *Server) GetLogs(ctx *gin.Context) {
 	orderBy := ctx.Query("orderBy")
 	sortOrder := ctx.Query("sort")
 
-	// cursor := ctx.Query("cursor")
 	var logs []WishLog
 	// inner join, Item is struct field not the type
 	db := server.Database.Joins("Item").Where(
