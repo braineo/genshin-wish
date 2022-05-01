@@ -159,12 +159,16 @@ func (server *Server) createWishLogs(gachaLogs *[]parser.GachaLog, gachaTypes []
 	pityStar5 := 1
 
 	// determine range of new values
-	if err := server.Database.Where(
+	if err := server.Database.Joins("Item").Where(
 		map[string]interface{}{"gacha_type": gachaTypes, "user_id": UID},
 	).Last(&lastWish); err != nil {
 		log.Debugf("last saved wish ID %s", lastWish.ID)
-		pityStar4 = lastWish.PityStar4 + 1
-		pityStar5 = lastWish.PityStar5 + 1
+		if lastWish.Item.Rarity != "5" {
+			pityStar5 = lastWish.PityStar5 + 1
+		}
+		if lastWish.Item.Rarity != "4" {
+			pityStar4 = lastWish.PityStar4 + 1
+		}
 
 		for _, gachaLog := range *gachaLogs {
 			if gachaLog.ID == lastWish.ID {
