@@ -19,9 +19,9 @@ var (
 )
 
 const (
-	itemListURLt   = "https://webstatic-sea.mihoyo.com/hk4e/gacha_info/os_asia/items/%s.json"
-	gachaConfigURL = "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getConfigList"
-	gachaLogURL    = "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getGachaLog"
+	itemListURLt   = "https://webstatic-sea.hoyoverse.com/hk4e/gacha_info/os_asia/items/%s.json"
+	gachaConfigURL = "https://hk4e-api-os.hoyoverse.com/event/gacha_info/api/getConfigList"
+	gachaLogURL    = "https://hk4e-api-os.hoyoverse.com/event/gacha_info/api/getGachaLog"
 )
 
 type Language string
