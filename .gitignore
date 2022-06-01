@@ -156,7 +156,8 @@ cython_debug/
 .vscode/
 
 # Executables
-/cli/cli
+cli/item-sync/item-sync
+cli/parser/parser
 genshin-wish
 
 # Database
