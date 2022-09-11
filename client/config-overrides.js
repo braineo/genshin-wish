@@ -1,5 +1,10 @@
-const { override, fixBabelImports, addLessLoader } = require('customize-cra');
-const { getThemeVariables } = require('antd/dist/theme');
+const {
+  addLessLoader,
+  adjustStyleLoaders,
+  fixBabelImports,
+  override,
+  overrideDevServer,
+} = require('customize-cra');
 
 module.exports = {
   webpack: override(
@@ -23,6 +28,10 @@ module.exports = {
               : '[hash:base64:5]',
         },
       },
+    }),
+    adjustStyleLoaders(({ use: [, , postcss] }) => {
+      const postcssOptions = postcss.options;
+      postcss.options = { postcssOptions };
     }),
   ),
 };
