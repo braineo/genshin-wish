@@ -1,16 +1,15 @@
-import { Table } from 'antd';
-import { ColumnsType } from 'antd/lib/table';
+import { Table, PageHeader } from 'antd';
 import axios from 'axios';
 import {
   Character,
-  characters,
   QueryOptions,
   Weapon,
+  characters,
   weapons,
 } from 'genshin-db';
 import { WishLog } from 'genshin-wish';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { Avatar } from '../../components/ItemCard';
 
 type GachaItem = Character | Weapon;
@@ -33,11 +32,31 @@ const client = axios.create({
 });
 
 export const WishItemList = () => {
+  const history = useHistory();
+  const { userId } = useParams<{
+    userId: string;
+  }>();
+
+  return (
+    <>
+      <PageHeader
+        onBack={() => history.push(`/stat/${userId}/all`)}
+        title="祈愿历史"
+        subTitle={`${userId}`}
+      />
+      <WishTable />
+    </>
+  );
+};
+
+const WishTable = () => {
   const [wishLogs, setWishLogs] = useState<WishLog[]>([]);
   const [gachaConfigs, setGachaConfigs] = useState<GachaConfig[]>([]);
 
-  const { userId, gachaType } =
-    useParams<{ userId: string; gachaType: string }>();
+  const { userId, gachaType } = useParams<{
+    userId: string;
+    gachaType: string;
+  }>();
 
   useEffect(() => {
     const fetchLog = async () => {
