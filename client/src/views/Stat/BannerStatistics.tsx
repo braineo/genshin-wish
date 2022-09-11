@@ -15,8 +15,10 @@ const client = axios.create({
 });
 
 const BannerStatistics: React.FC = () => {
-  const { userId, gachaType } =
-    useParams<{ userId: string; gachaType: string }>();
+  const { userId, gachaType } = useParams<{
+    userId: string;
+    gachaType: string;
+  }>();
   const [wishLogs, setWishLogs] = useState<WishLog[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
   let chartInstance: echarts.ECharts;
@@ -82,10 +84,16 @@ const BannerStatistics: React.FC = () => {
       character4Star: 0,
       weapon4Star: 0,
     };
+    const repeatedItemCount: Indexable = {};
 
     chartInstance.setOption({
       title: chartTitles,
-
+      yAxis: {
+        type: 'category',
+      },
+      xAxis: {
+        max: 'dataMax',
+      },
       series: [
         {
           type: 'pie',
@@ -157,6 +165,29 @@ const BannerStatistics: React.FC = () => {
             }`,
             value: elem[1],
           })),
+        },
+
+        {
+          type: 'bar',
+          top: '66.667%',
+          left: 0,
+          height: '100%',
+          data: Object.entries(
+            wishLogs.reduce((prev, current) => {
+              if (current.Item.rarity === '3') {
+                return prev;
+              }
+              if (current.Item.name in prev) {
+                prev[current.Item.name] += 1;
+              } else {
+                prev[current.Item.name] = 1;
+              }
+              return prev;
+            }, repeatedItemCount),
+          )
+            .filter(elem => elem[1] > 1)
+            .sort((a, b) => a[1] - b[1])
+            .map(elem => [elem[1], elem[0]]),
         },
       ],
     });

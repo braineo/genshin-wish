@@ -5,8 +5,10 @@ import styles from './index.module.less';
 import RecentItems from './RecentItems';
 
 const Recents: React.FC = () => {
-  const { userId, gachaType } =
-    useParams<{ userId: string; gachaType: string }>();
+  const { userId, gachaType } = useParams<{
+    userId: string;
+    gachaType: string;
+  }>();
   const itemConfigs = [
     { title: '最近五星', rarity: '5' },
     { title: '最近四星', rarity: '4' },
