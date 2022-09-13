@@ -5,6 +5,7 @@ const {
   override,
   overrideDevServer,
 } = require('customize-cra');
+const { getThemeVariables } = require('antd/dist/theme');
 
 module.exports = {
   webpack: override(
