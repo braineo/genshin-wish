@@ -18,6 +18,7 @@ const Recents: React.FC = () => {
           key={index}
           title={data.title}
           rarity={data.rarity}
+          size={5}
           userId={userId}
           // FIXME: handle mix gacha pool
           gachaType={
@@ -27,7 +28,6 @@ const Recents: React.FC = () => {
               ? '301+400'
               : gachaType
           }
-          size={5}
         />
       ))}
     </Col>

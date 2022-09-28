@@ -67,7 +67,7 @@ export const Avatar = (props: AvatarProps) => {
       >
         <img
           className={styles.icon}
-          src={props.itemInfo?.images.icon}
+          src={props.itemInfo.images.icon}
           alt="item-icon"
         />
       </span>

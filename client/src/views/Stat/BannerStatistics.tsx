@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'antd';
 import axios from 'axios';
 import * as echarts from 'echarts';
 import 'echarts/lib/chart/line';
 import 'echarts/lib/chart/bar';
 import { WishLog } from 'genshin-wish';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Recents from '../Recents';
 import styles from './index.module.less';
@@ -38,7 +38,7 @@ const BannerStatistics: React.FC = () => {
     fetchLog();
 
     return () => {
-      chartInstance && chartInstance.dispose();
+      chartInstance.dispose();
     };
   }, []);
 
@@ -69,9 +69,7 @@ const BannerStatistics: React.FC = () => {
       return;
     }
     let chartInstance = echarts.getInstanceByDom(chartRef.current);
-    if (!chartInstance) {
-      chartInstance = echarts.init(chartRef.current);
-    }
+    chartInstance = echarts.init(chartRef.current);
     type Indexable = {
       [key: string]: number;
     };
@@ -142,7 +140,7 @@ const BannerStatistics: React.FC = () => {
                 } else if (current.Item.rarity === '5') {
                   prev.weapon5Star += 1;
                 }
-              } else if (current.Item.type === 'character') {
+              } else {
                 if (current.Item.rarity === '4') {
                   prev.character4Star += 1;
                 } else if (current.Item.rarity === '5') {
