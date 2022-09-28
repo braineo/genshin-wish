@@ -3,7 +3,6 @@ import { Route, Switch } from 'react-router';
 import Home from '../Home';
 import Stat from '../Stat';
 import { WishItemList } from '../WishItemList';
-import styles from './App.module.less';
 
 function App() {
   return (
