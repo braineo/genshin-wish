@@ -21,7 +21,7 @@ const BannerStatistics: React.FC = () => {
   }>();
   const [wishLogs, setWishLogs] = useState<WishLog[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
-  let chartInstance: echarts.ECharts;
+  let chartInstance: echarts.ECharts | undefined;
   useEffect(() => {
     const fetchLog = async () => {
       const gachaLog = await client.get<{ data: WishLog[] }>(`log/${userId}`, {
@@ -40,7 +40,9 @@ const BannerStatistics: React.FC = () => {
     fetchLog();
 
     return () => {
-      chartInstance.dispose();
+      if (chartInstance) {
+        chartInstance.dispose();
+      }
     };
   }, []);
 
