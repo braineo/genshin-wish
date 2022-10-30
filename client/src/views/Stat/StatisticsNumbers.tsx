@@ -39,12 +39,12 @@ const StatisticsNumbers: React.FC<WishStatisticsProps> = props => {
       <Card>
         <Statistic
           title="五星平均间隔"
+          precision={1}
           value={
             star5Wishes
               .map(log => log.pityStar5)
               .reduce((acc, current) => acc + current, 0) / star5Wishes.length
           }
-          precision={1}
         />
       </Card>
       <Card>

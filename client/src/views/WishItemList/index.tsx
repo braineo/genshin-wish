@@ -1,4 +1,4 @@
-import { Table, PageHeader } from 'antd';
+import { PageHeader, Table } from 'antd';
 import axios from 'axios';
 import {
   Character,
