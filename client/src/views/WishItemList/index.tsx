@@ -1,4 +1,4 @@
-import { Table, PageHeader } from 'antd';
+import { PageHeader, Table } from 'antd';
 import axios from 'axios';
 import {
   Character,
@@ -9,7 +9,7 @@ import {
 } from 'genshin-db';
 import { WishLog } from 'genshin-wish';
 import { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router-dom';
 import { Avatar } from '../../components/ItemCard';
 
 type GachaItem = Character | Weapon;

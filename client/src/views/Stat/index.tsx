@@ -1,7 +1,7 @@
 import { PageHeader, Tabs } from 'antd';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router-dom';
 import BannerStatistics from './BannerStatistics';
 
 const { TabPane } = Tabs;

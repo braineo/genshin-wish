@@ -1,7 +1,6 @@
 import { Col } from 'antd';
 import React from 'react';
-import { useParams } from 'react-router';
-import styles from './index.module.less';
+import { useParams } from 'react-router-dom';
 import RecentItems from './RecentItems';
 
 const Recents: React.FC = () => {
@@ -18,6 +17,7 @@ const Recents: React.FC = () => {
           key={index}
           title={data.title}
           rarity={data.rarity}
+          size={5}
           userId={userId}
           // FIXME: handle mix gacha pool
           gachaType={
@@ -27,7 +27,6 @@ const Recents: React.FC = () => {
               ? '301+400'
               : gachaType
           }
-          size={5}
         />
       ))}
     </Col>

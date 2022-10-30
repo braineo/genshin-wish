@@ -1,6 +1,6 @@
 import { Button, Col, Form, Input, List } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import { useAxios } from '../../utils/axios';
 
 type User = {
@@ -31,6 +31,7 @@ const Home: React.FC = () => {
     try {
       await client.post('/log', values);
     } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -57,7 +58,10 @@ const Home: React.FC = () => {
         renderItem={item => (
           <List.Item
             actions={[
-              <Button onClick={() => history.push(`/stat/${item.id}/all`)}>
+              <Button
+                key={item.id}
+                onClick={() => history.push(`/stat/${item.id}/all`)}
+              >
                 查看
               </Button>,
             ]}
