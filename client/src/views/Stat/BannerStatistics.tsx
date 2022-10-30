@@ -5,7 +5,7 @@ import * as echarts from 'echarts';
 import 'echarts/lib/chart/line';
 import 'echarts/lib/chart/bar';
 import { WishLog } from 'genshin-wish';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import Recents from '../Recents';
 import styles from './index.module.less';
 import StatisticsNumbers from './StatisticsNumbers';

@@ -1,6 +1,6 @@
 import { Col } from 'antd';
 import React from 'react';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import styles from './index.module.less';
 import RecentItems from './RecentItems';
 

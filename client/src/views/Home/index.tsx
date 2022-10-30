@@ -1,6 +1,6 @@
 import { Button, Col, Form, Input, List } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import { useAxios } from '../../utils/axios';
 
 type User = {
