@@ -1,5 +1,4 @@
-import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import Home from '../Home';
 import Stat from '../Stat';
 import { WishItemList } from '../WishItemList';
@@ -13,9 +12,10 @@ function App() {
       <Route path="/list/:userId/">
         <WishItemList />
       </Route>
-      <Route path="/">
+      <Route path="">
         <Home />
       </Route>
+      <Redirect to="/" />
     </Switch>
   );
 }
