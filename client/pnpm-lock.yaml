@@ -20,7 +20,7 @@ specifiers:
   eslint-config-prettier: ^8.5.0
   eslint-plugin-import: ^2.26.0
   eslint-plugin-tsdoc: ^0.2.17
-  genshin-db: ^4.3.2
+  genshin-db: ^4.3.4
   less: ^4.1.1
   less-loader: ^7.3.0
   prettier: ^2.7.1
@@ -44,7 +44,7 @@ dependencies:
   babel-plugin-import: 1.13.3
   classnames: 2.3.1
   echarts: 5.2.0
-  genshin-db: 4.3.2
+  genshin-db: 4.3.4
   less: 4.1.1
   less-loader: 7.3.0_less@4.1.1+webpack@5.74.0
   react: 18.2.0
@@ -6117,8 +6117,8 @@ packages:
     resolution: {integrity: sha512-JzK/lHjVZ6joAg3OnCjylwYXYVjRiwTY6Yb25LvfpJHK8bjisfnZJ5bY8aVWwTwCXgxPNgLAtmHL+Hs5q1ddLQ==}
     dev: false
 
-  /genshin-db/4.3.2:
-    resolution: {integrity: sha512-oTOAk97fZju3x7qLvJiYaXUXViEUIb91cmFyEn2adrimJTiSxuwcuE2XYV8L6P076QY1qCJbsQdgB1AMsf377g==}
+  /genshin-db/4.3.4:
+    resolution: {integrity: sha512-lXRJq9BhZqHhPm3fHSRv5qO2mTHJ1NO9HqifZZBrX7obYkWhpaG7MJqrO8A5sjVpeSNq6jdWWs0dUTjcqPnxtg==}
     dependencies:
       fuzzysort: 1.1.4
       pako: 2.0.4
