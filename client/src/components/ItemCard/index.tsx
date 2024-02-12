@@ -1,12 +1,7 @@
 import classNames from 'classnames';
-import {
-  Character,
-  QueryOptions,
-  Weapon,
-  characters,
-  weapons,
-} from 'genshin-db';
-import React from 'react';
+import type { Character, QueryOptions, Weapon } from 'genshin-db';
+import React, { useEffect, useState } from 'react';
+import { queryCharacter, queryWeapon } from '../../common/api';
 import { toEnElement } from '../../utils';
 import RarityIndicator from '../RarityIndicator';
 import styles from './index.module.less';
@@ -43,11 +38,11 @@ const ItemName: React.FC<{ itemInfo: Character | Weapon | null }> = props => {
       className={classNames(
         styles.name,
         isCharacter(itemInfo)
-          ? styles[`${toEnElement(itemInfo.element)}Text`]
+          ? styles[`${toEnElement(itemInfo.elementText)}Text`]
           : '',
       )}
     >{`${itemInfo.name}(${
-      isCharacter(itemInfo) ? itemInfo.element : itemInfo.weapontype
+      isCharacter(itemInfo) ? itemInfo.elementText : itemInfo.weaponType
     })`}</div>
   );
 };
@@ -67,7 +62,7 @@ export const Avatar = (props: AvatarProps) => {
       >
         <img
           className={styles.icon}
-          src={props.itemInfo.images.icon}
+          src={props.itemInfo.images.mihoyo_icon}
           alt="item-icon"
         />
       </span>
@@ -86,12 +81,29 @@ interface ItemCardProps {
 }
 
 const ItemCard: React.FC<ItemCardProps> = props => {
-  let itemInfo: Character | Weapon | undefined;
-  if (props.itemType === 'character') {
-    itemInfo = characters(props.itemId, queryOption as unknown as QueryOptions);
-  } else {
-    itemInfo = weapons(props.itemId, queryOption as unknown as QueryOptions);
-  }
+  const [itemInfo, setItemInfo] = useState<Character | Weapon>();
+
+  useEffect(() => {
+    const getInfo = async () => {
+      if (props.itemType === 'character') {
+        const itemInfo = await queryCharacter(
+          props.itemId,
+          queryOption as unknown as QueryOptions,
+        );
+        setItemInfo(itemInfo);
+        return;
+      } else {
+        const itemInfo = await queryWeapon(
+          props.itemId,
+          queryOption as unknown as QueryOptions,
+        );
+        setItemInfo(itemInfo);
+        return;
+      }
+    };
+    getInfo();
+  }, [props.itemId, props.itemType]);
+
   if (!itemInfo) {
     return <div />;
   }
